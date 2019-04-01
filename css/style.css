@@ -1,0 +1,42 @@
+body {
+    margin: 0 auto;
+    background-color: green;
+}
+#table {
+    /* background: url('../images/other/game_table_background_wide.jpg') no-repeat; */
+    background: url('../images/other/background.jpg') no-repeat;
+    background-size: 100vw 100vh;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 9% 80% 11%;
+    grid-template-rows: 5% 60% 20% 10%;
+    grid-gap: 1%;
+    grid-template-areas:    "p4 p3 p2"
+                            "p4 tbl p2"
+                            "p4 p1 p2"
+                            "p4 p1 p2";
+}
+.players {
+    border: 1px solid red;
+
+}
+#pl-1 {
+    grid-area: p1;
+    border-top-left-radius: 600px 100px;
+    border-top-right-radius: 600px 100px;
+}
+#pl-2 {
+    grid-area: p2;
+}
+#pl-3 {
+    grid-area: p3;
+}
+#pl-4 {
+    grid-area: p4;
+}
+#mid-table {
+    grid-area: tbl;
+    /* background: url('../images/other/background.jpg') no-repeat; */
+    background-size: 100% 100%;
+}
