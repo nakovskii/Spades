@@ -30,7 +30,7 @@ body {
     grid-area: p2;
 }
 #pl-3 {
-    grid-area: p3;
+    grid-area: p3; 
 }
 #pl-4 {
     grid-area: p4;
@@ -40,3 +40,13 @@ body {
     /* background: url('../images/other/background.jpg') no-repeat; */
     background-size: 100% 100%;
 }
+
+.card-img {
+    position: absolute;
+    border-radius: 5px;
+    width: 150px;
+    height: 200px;
+    z-index: +1;
+    margin: +10px;
+}
+
