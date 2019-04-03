@@ -20,13 +20,13 @@ class Deck {
     constructor() {
         this.deck = [];
         let sortNum = 102
-        const suits = ['clubs', 'diamonds', 'hearts', 'spades'];
+        const suits = ['diamonds', 'clubs', 'hearts', 'spades'];
         const values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king', 'ace'];
-            for (let i = 0; i < values.length; i++) {
-              for (let j = 0; j < suits.length; j++) {
+            for (let j = 0; j < suits.length; j++) {
+                for (let i = 0; i < values.length; i++) {
                 this.deck.push({sorted: sortNum, suit: suits[j], value: i+2, imgSrc: `../images/${values[i]}_of_${suits[j]}.png`});
                 sortNum++
-            }
+                }
             }
     } // end buildDeck 
     shuffle () {
@@ -79,6 +79,11 @@ let trickSuit = '';
 // each player has its own slot in the trick.  This is to keep track of who won the hand
 let trick = [[],[],[],[]];
 
+let p0hand = [];
+let p1hand = [];
+let p2hand = [];
+let p3hand = [];
+
 // create new deck called spades
 let spades = new Deck();
 // console.log(spades.deck);
@@ -115,8 +120,7 @@ const compareSuits = (a, b) => {
   }
 const compareSort = (a, b) => {  // callback fundtion
     let comparison = 0;
-    debugger;
-    console.log('asorted', a.sorted);
+    // debugger;
     if (a.sorted > b.sorted) {
       comparison = 1;
     } else if (a.sorted < b.sorted) {
@@ -124,15 +128,22 @@ const compareSort = (a, b) => {  // callback fundtion
     }
     return comparison;
   }
-// compare is not working  - look check
-console.log(players.p0.hand);
-let handSorted = players.p0.hand.sort(compareSort);
-console.log(handSorted);
-// above is not working
+
+  const sortHand = () => {
+    p0hand = players.p0.hand.sort(compareSort);
+    p1hand = players.p1.hand.sort(compareSort);
+    p2hand = players.p2.hand.sort(compareSort);
+    p3hand = players.p3.hand.sort(compareSort);
+    // players.p0.hand = p0hand;
+    // players.p1.hand = p1hand;
+    // players.p2.hand = p2hand;
+    // players.p3.hand = p3hand;
+  }
+
 // This translates the Card by x or y co-ordinate and # px displacement
-const checkSuitPresence = (hand) => {
+const checkSuitPresence = (hand, suitp) => {
     for (let i = 0; i < hand.length; i++) {
-        if (hand[i].suit == trickSuit) {
+        if (hand[i].suit == suitp) {
             return true;
         } else {
             return false;
@@ -140,6 +151,25 @@ const checkSuitPresence = (hand) => {
     }
 }
 
+const evaluateTrick = () =>{
+    let newTrick = trick.flat(2);
+    console.log(newTrick);
+    let tirckWinner = null;
+    // if check if any of the suit is spade?
+    for (let i = 0; i < newTrick.length; i++) {
+        if (checkSuitPresence(newTrick[i], 'spades')) {
+            // evaluate for spades only
+            console.log(`p${i}'s trick has spades ${newTrick[i]}`);
+            // return trickWinner;
+        } else if (checkSuitPresence(newTrick[i], trickSuit)) {
+            // evaluate for trick suit only
+            console.log(`p${i}'s trick has trick-suit ${trickSuit} card: ${newTrick[i]}`);
+            // return trickWinner;
+        } else {
+            console.log(` nothing p${i}'s trick has ${newTrick[i]}`);
+        }
+    }
+}
 const translateCard = (disp1, disp2) => {
     pCard.style.transform = `translateXY(${disp1}px, ${disp2}px)`;
 };
@@ -157,7 +187,7 @@ const displayPlayer0Cards = () => {
         pCard.src = `${players.p0.hand[i].imgSrc}`;
         p0HandDOM.appendChild(pCard);
         pCard.addEventListener('click', () => {
-            if (whosTurn === 0){
+            if (whosTurn === 0 && turnTotal <= 4){
                 let selectedCardindex = players.p0.hand.indexOf(players.p0.hand[i]);
                 console.log(selectedCardindex);
                 if (fisrtMove) { 
@@ -166,8 +196,9 @@ const displayPlayer0Cards = () => {
                     fisrtMove = false;
                     pCard.style.transform = 'translateY(-200px)';
                     trick[0].push(players.p0.hand.splice(selectedCardindex,1));
+                    turnTotal++
                     whosTurn = 1;    
-                } else if (checkSuitPresence(players.p0.hand) && players.p0.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(players.p0.hand, trickSuit) && players.p0.hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
                     // pCard.removeEventListener('click', ()=>{
@@ -176,8 +207,11 @@ const displayPlayer0Cards = () => {
                 } else {
                     pCard.style.transform = 'translateY(-200px)';
                     trick[0].push(players.p0.hand.splice(selectedCardindex,1));
+                    turnTotal++
                     whosTurn = 1;    
                 }
+            } else {
+                alert(`not your turn.`);
             }
         });
     }    
@@ -194,7 +228,7 @@ const displayPlayer1Cards = () => {
         pCard.src = `${players.p1.hand[i].imgSrc}`;
         pHandDOM.appendChild(pCard);
         pCard.addEventListener('click', (e) => {  // eventListener
-            if (whosTurn === 1){
+            if (whosTurn === 1 && turnTotal <= 4){
             let selectedCardindex = players.p1.hand.indexOf(players.p1.hand[i]);
             console.log(selectedCardindex);
                 if (fisrtMove) { 
@@ -203,23 +237,20 @@ const displayPlayer1Cards = () => {
                     fisrtMove = false;
                     pCard.style.transform = 'translateX(-200px)';
                     trick[1].push(players.p1.hand.splice(selectedCardindex,1));
+                    turnTotal++
                     whosTurn = 2;
-                }  else if (checkSuitPresence(players.p1.hand) && players.p1.hand[selectedCardindex].suit != trickSuit){
+                }  else if (checkSuitPresence(players.p1.hand, trickSuit) && players.p1.hand[selectedCardindex].suit != trickSuit){
                         console.log(pCard);
                         alert(`must select a card of ${trickSuit}`);
-                        // pCard.removeEventListener('click', ()=>{
-                        //     alert(`must select a card of ${trickSuit}`);
-                        // });
                     } else {
                     // translateCard(-200, 0);
                         pCard.style.transform = 'translateX(-200px)';
                         trick[1].push(players.p1.hand.splice(selectedCardindex,1));
+                        turnTotal++
                         whosTurn = 2;
                     }
-            
-            
-            
-            
+            } else {
+                alert(`not your turn.`);
             }
         });
     }    
@@ -236,14 +267,18 @@ const displayPlayer2Cards = () => {
         pCard.src = `${players.p2.hand[i].imgSrc}`;
         p3HandDOM.appendChild(pCard);
         pCard.addEventListener('click', (e) => { // eventListener
-            if (whosTurn === 2){
+            if (whosTurn === 2 && turnTotal <= 4){
             let selectedCardindex = players.p2.hand.indexOf(players.p2.hand[i]);
             console.log(selectedCardindex);
                 if (fisrtMove) { 
                     trickSuit = players.p2.hand.suit; 
                     console.log(trickSuit);
                     fisrtMove = false;
-                } else if (checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit != trickSuit){
+                    pCard.style.transform = 'translateY(200px)';
+                    trick[2].push(players.p2.hand.splice(selectedCardindex,1));
+                    turnTotal++
+                    whosTurn = 3;    
+                } else if (checkSuitPresence(players.p2.hand, trickSuit) && players.p2.hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
                     // pCard.removeEventListener('click', ()=>{
@@ -253,6 +288,7 @@ const displayPlayer2Cards = () => {
                 // translateCard(y, 200);
                 pCard.style.transform = 'translateY(200px)';
                 trick[2].push(players.p2.hand.splice(selectedCardindex,1));
+                turnTotal++
                 whosTurn = 3;
                 }
             } else {
@@ -272,7 +308,7 @@ const displayPlayer3Cards = () => {
         pCard.src = `${players.p3.hand[i].imgSrc}`;
         pHandDOM.appendChild(pCard);
         pCard.addEventListener('click', (e) => {
-            if (whosTurn === 3){
+            if (whosTurn === 3 & turnTotal <=4){
             let selectedCardindex = players.p3.hand.indexOf(players.p3.hand[i]);
             console.log(selectedCardindex);
                 if (fisrtMove) { 
@@ -283,15 +319,20 @@ const displayPlayer3Cards = () => {
                     // pCard.style.display = 'none';
                     trick[3].push(players.p3.hand.splice(selectedCardindex,1));
                     console.log(trick);
+                    turnTotal++
                     whosTurn = 0;
-                } else if (checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(players.p3.hand, trickSuit) && players.p3.hand[selectedCardindex].suit != trickSuit){
                     alert(`must select a card of ${trickSuit}`);
                 } else {
                     pCard.style.transform = 'translateX(200px)';
                     // pCard.style.display = 'none';
                     trick[3].push(players.p3.hand.splice(selectedCardindex,1));
                     console.log(trick);
+                    turnTotal++
                     whosTurn = 0;
+                    if (turnTotal === 4){
+                        evaluateTrick();
+                    }
                 }
 
             } else {
@@ -315,6 +356,7 @@ let deal = document.getElementById('deal');
 // deal.addEventListener('click', dealCards);  // temporerily disabled look
 const play = () => {
     dealCards();
+    sortHand();
     displayPlayer0Cards();
     displayPlayer1Cards();
     displayPlayer2Cards();
