@@ -185,29 +185,32 @@ const updateTricksWon = (p) => {
         players.p3.tricksWon += 1; 
         whosTurn = 3;
     } else {}
+    clearTrick();
 }
 const updateScoreCards = () => {
     let p0score = document.getElementById('p0-score');
     let p1score = document.getElementById('p1-score');
     let p2score = document.getElementById('p2-score');
     let p3score = document.getElementById('p3-score');
-    p0score.innerHTML = `Tricks won by you: ${players.p0.tricksWon}`;
-    p1score.innerHTML = `Tricks won by P1: ${players.p1.tricksWon}`;
-    p2score.innerHTML = `Tricks won by partner: ${players.p2.tricksWon}`;
-    p3score.innerHTML = `Tricks won by P3 ${players.p3.tricksWon}`;
+    let pWhosTurn = document.getElementById('whos-turn')
+    p0score.innerHTML = `P0 Tricks won: <span>${players.p0.tricksWon}</span>`;
+    p1score.innerHTML = `P1 Tricks won: <span>${players.p1.tricksWon}</span>`;
+    p2score.innerHTML = `P2 Tricks won: <span>${players.p2.tricksWon}</span>`;
+    p3score.innerHTML = `P3 Tricks won: <span>${players.p3.tricksWon}</span>`;
+    pWhosTurn.innerHTML = `Player ${whosTurn} next!`
+
+
 }
 
 const clearTrick = () => {
+    document.querySelector('#t-p0').src = '';
+    document.querySelector('#t-p1').src = '';
+    document.querySelector('#t-p2').src = '';
+    document.querySelector('#t-p3').src = '';
     trick = [[],[],[],[]];
-    let newTrick = trick.flat(2);
-    let p0TrickImg = document.querySelector('#t-p0');
-    let p1TrickImg = document.querySelector('#t-p1');
-    let p2TrickImg = document.querySelector('#t-p2');
-    let p3TrickImg = document.querySelector('#t-p3');
-    p0TrickImg.src = '';
-    p1TrickImg.src = '';
-    p2TrickImg.src = '';
-    p3TrickImg.src = '';
+    trickSuit = '';
+    turnTotal = 0;
+    fisrtMove = true;
 }
 const renderTrick = (p) => {
     let newTrick = trick.flat(2);
@@ -233,7 +236,7 @@ const renderTrickEval = () => {
     p3TrickImg.src = newTrick[3].imgSrc;
 }
 const evaluateTrick = () =>{
-    renderTrickEval();
+    // renderTrickEval();
     let newTrick = trick.flat(2);
     console.log(`card values:`, newTrick[0].value, newTrick[1].value, newTrick[2].value, newTrick[3].value);
     let newTrickCardValuesArr = [newTrick[0].value, newTrick[1].value, newTrick[2].value, newTrick[3].value];

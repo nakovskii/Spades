@@ -72,6 +72,7 @@ let turnTotal = 0
 let fisrtMove = true;
 // what card to throw? 
 let trickSuit = ''; 
+let trickSuitId = null;
 // each player has its own slot in the trick.  This is to keep track of who won the hand
 let trick = [ , , , ,];
 
@@ -79,16 +80,24 @@ let p0hand = [];
 let p1hand = [];
 let p2hand = [];
 let p3hand = [];
-
+let diamonds = [];
+let clubs = [];
+let hearts = [];
+let spades = [];
+const defineSuitArray = (s, arr) => {
+    for (let i = 0; i < 13; i++) {
+        arr[i] = s+i;
+    }
+}
 // create new deck called spades
-let spades = new Deck();
-let myDeck = spades.deck.flat();
-// console.log(myDeck);
+let nDeck = new Deck();
 
 //  shuffle twice
-spades.shuffle();
-spades.shuffle();
-
+nDeck.shuffle();
+nDeck.shuffle();
+// get flatted deck array
+let myDeck = nDeck.deck.flat();
+// console.log(myDeck);
 const dealRound = (n,index) => {
     p0hand.push(myDeck.splice(0, n));
     p1hand.push(myDeck.splice(0, n));
@@ -115,10 +124,6 @@ const sortHand = () => {
     p1hand = p1hand.flat().sort(compareSort);
     p2hand = p2hand.flat().sort(compareSort);
     p3hand = p2hand.flat().sort(compareSort);
-    // p0hand = p0hand.sort(compareSort);
-    // p1hand = p1hand.sort(compareSort);
-    // p2hand = p2hand.sort(compareSort);
-    // p3hand = p3hand.sort(compareSort);
   }
 const updateGlobalVariables = () => {
     turnTotal++;
@@ -128,34 +133,40 @@ const updateGlobalVariables = () => {
     }
     whosTurn++;
     if (whosTurn>4){whosTurn=0}
+
 }
 const playersTurnNew = (p) => {
+    let cardplayed = [];
     if (p===0){
-        let cardplayed = p0hand.splice(Math.floor(Math.random()* 13),1);
-        trickSuit = cardplayed.suit;
-        trick[p].push(cardplayed.pop());
+        cardplayed.push(p0hand.splice(Math.floor(Math.random()* p0hand.length),1));
+        cardplayed = cardplayed.flat(2);
+        trickSuit = cardplayed[0].suit;
+        trickSuitId = cardplayed[0].id;
+        trick[p] = cardplayed.pop();
         updateGlobalVariables();
-        // renderTrick();
     }
     else if (p===1){
-        let cardplayed = p1hand.splice(Math.floor(Math.random()* 13),1);
-        trickSuit = cardplayed.suit;
-        trick[p].push(cardplayed.pop());
+        cardplayed.push(p1hand.splice(Math.floor(Math.random()* p1hand.length),1));
+        cardplayed = cardplayed.flat(2);
+        trickSuit = cardplayed[0].suit;
+        trickSuitId = cardplayed[0].id;
+        trick[p] = cardplayed.pop();
         updateGlobalVariables();
-        // renderTrick();
-
     }
     else if (p===2){
-        let cardplayed = p2hand.splice(Math.floor(Math.random()* 13),1);
-        trickSuit = cardplayed.suit;
-        trick[p].push(cardplayed.pop());
+        cardplayed.push(p2hand.splice(Math.floor(Math.random()* p2hand.length),1));
+        cardplayed = cardplayed.flat(2);
+        trickSuit = cardplayed[0].suit;
+        trickSuitId = cardplayed[0].id;
+        trick[p] = cardplayed.pop();
         updateGlobalVariables();
-
     }
     else if (p===3){
-        let cardplayed = p3hand.splice(Math.floor(Math.random()* 13),1);
-        trickSuit = cardplayed.suit;
-        trick[p].push(cardplayed.pop());
+        cardplayed.push(p2hand.splice(Math.floor(Math.random()* p2hand.length),1));
+        cardplayed = cardplayed.flat(2);
+        trickSuit = cardplayed[0].suit;
+        trickSuitId = cardplayed[0].id;
+        trick[p] = cardplayed.pop();
         updateGlobalVariables();
         // renderTrick();
     }
@@ -164,7 +175,7 @@ const playersTurnNew = (p) => {
 }
 const playersTurn = () => {
     // check player's hand for suit
-
+    // if
     // get cards in the trick
 
 
@@ -196,9 +207,6 @@ const computerPlays = () => {
     if (turnTotal===4){
         renderTrick();
     }
-    // playersTurn(1);
-    // playersTurn(2);
-    // playersTurn(3);
 }
 
 
@@ -206,6 +214,16 @@ const computerPlays = () => {
 
 
 const play = () => {
+    defineSuitArray(102, diamonds);
+    defineSuitArray(115, clubs);
+    defineSuitArray(128, hearts);
+    defineSuitArray(141, spades);
+    // console.log('diamonds',diamonds);
+    // console.log('clubs',clubs);
+    // console.log('hearts',hearts);
+    // console.log('spades',spades);
+
+    
     dealCards();
     sortHand();
     // displayPlayer0Cards();
@@ -213,5 +231,8 @@ const play = () => {
     // displayPlayer2Cards();
     // displayPlayer3Cards();
     computerPlays();
+    console.log(`trickSuit: ${trickSuit}`);
+    console.log(`trickSuitId: ${trickSuitId}`);
+    
 }
 play();
