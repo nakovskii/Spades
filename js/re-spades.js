@@ -73,7 +73,7 @@ let fisrtMove = true;
 // what card to throw? 
 let trickSuit = ''; 
 // each player has its own slot in the trick.  This is to keep track of who won the hand
-let trick = [[],[],[],[]];
+let trick = [ , , , ,];
 
 let p0hand = [];
 let p1hand = [];
@@ -90,10 +90,10 @@ spades.shuffle();
 spades.shuffle();
 
 const dealRound = (n,index) => {
-    p0hand.push(spades.deck.splice(0, n));
-    p1hand.push(spades.deck.splice(0, n));
-    p2hand.push(spades.deck.splice(0, n));
-    p3hand.push(spades.deck.splice(0, n));
+    p0hand.push(myDeck.splice(0, n));
+    p1hand.push(myDeck.splice(0, n));
+    p2hand.push(myDeck.splice(0, n));
+    p3hand.push(myDeck.splice(0, n));
 }
 const dealCards = () => {
     dealRound(5,0);
@@ -103,7 +103,6 @@ const dealCards = () => {
 const sortHand = () => {
     const compareSort = (a, b) => {  // callback fundtion
         let comparison = 0;
-        // debugger;
         if (a.id > b.id) {
           comparison = 1;
         } else if (a.id < b.id) {
@@ -113,43 +112,93 @@ const sortHand = () => {
       }
     // flatten the hand arrays before sort
     p0hand = p0hand.flat().sort(compareSort);
-    p1hand = p1hand.flat();
-    p2hand = p2hand.flat();
-    p3hand = p2hand.flat();
+    p1hand = p1hand.flat().sort(compareSort);
+    p2hand = p2hand.flat().sort(compareSort);
+    p3hand = p2hand.flat().sort(compareSort);
     // p0hand = p0hand.sort(compareSort);
-    p1hand = p1hand.sort(compareSort);
-    p2hand = p2hand.sort(compareSort);
-    p3hand = p3hand.sort(compareSort);
+    // p1hand = p1hand.sort(compareSort);
+    // p2hand = p2hand.sort(compareSort);
+    // p3hand = p3hand.sort(compareSort);
   }
-
+const updateGlobalVariables = () => {
+    turnTotal++;
+    if (turnTotal===4){
+        renderTrick();
+        turnTotal = 0;
+    }
+    whosTurn++;
+    if (whosTurn>4){whosTurn=0}
+}
 const playersTurnNew = (p) => {
     if (p===0){
-        trick[p]=p0hand.splice(Math.floor(Math.random()* 12),1);
-        console.log(p0hand);
+        let cardplayed = p0hand.splice(Math.floor(Math.random()* 13),1);
+        trickSuit = cardplayed.suit;
+        trick[p].push(cardplayed.pop());
+        updateGlobalVariables();
+        // renderTrick();
     }
     else if (p===1){
-        trick[p]=p1hand.splice(Math.floor(Math.random()* 12),1);
-        console.log(p1hand);
+        let cardplayed = p1hand.splice(Math.floor(Math.random()* 13),1);
+        trickSuit = cardplayed.suit;
+        trick[p].push(cardplayed.pop());
+        updateGlobalVariables();
+        // renderTrick();
 
     }
     else if (p===2){
-        trick[p]=p2hand.splice(Math.floor(Math.random()* 12),1);
-        console.log(p2hand);
+        let cardplayed = p2hand.splice(Math.floor(Math.random()* 13),1);
+        trickSuit = cardplayed.suit;
+        trick[p].push(cardplayed.pop());
+        updateGlobalVariables();
+
     }
     else if (p===3){
-        trick[p]=p3hand.splice(Math.floor(Math.random()* 12),1);
-        console.log(p3hand);
+        let cardplayed = p3hand.splice(Math.floor(Math.random()* 13),1);
+        trickSuit = cardplayed.suit;
+        trick[p].push(cardplayed.pop());
+        updateGlobalVariables();
+        // renderTrick();
     }
     console.log(trick);
     
-    
 }
+const playersTurn = () => {
+    // check player's hand for suit
+
+    // get cards in the trick
+
+
+}
+
+const renderTrick = () => {
+    console.log('start renderTrick',trick);
+    trick = trick.flat(2);
+    let p0TrickImg = document.querySelector('#t-p0');
+    let p1TrickImg = document.querySelector('#t-p1');
+    let p2TrickImg = document.querySelector('#t-p2');
+    let p3TrickImg = document.querySelector('#t-p3');
+    console.log(p0TrickImg, p1TrickImg, p2TrickImg, p3TrickImg);
+    console.log(trick);
+    // if (trick[0] != []) {p0TrickImg.src = trick[0].imgSrc;}
+    // if (trick[1] != []) {p1TrickImg.src = trick[1].imgSrc;}
+    // if (trick[2] != []) {p2TrickImg.src = trick[2].imgSrc;}
+    // if (trick[3] != []) {p3TrickImg.src = trick[3].imgSrc;}
+
+    p0TrickImg.src = trick[0].imgSrc;
+    p1TrickImg.src = trick[1].imgSrc;
+    p2TrickImg.src = trick[2].imgSrc;
+    p3TrickImg.src = trick[3].imgSrc;
+}
+
 const computerPlays = () => {
-    playersTurnNew(0);
-    playersTurn(1);
-    playersTurn(2);
-    playersTurn(3);
-    
+    if (fisrtMove){playersTurnNew(whosTurn);}
+    else {playersTurn(whosTurn);}
+    if (turnTotal===4){
+        renderTrick();
+    }
+    // playersTurn(1);
+    // playersTurn(2);
+    // playersTurn(3);
 }
 
 
@@ -163,6 +212,6 @@ const play = () => {
     // displayPlayer1Cards();
     // displayPlayer2Cards();
     // displayPlayer3Cards();
-    playersTurnNew(0);
+    computerPlays();
 }
 play();
