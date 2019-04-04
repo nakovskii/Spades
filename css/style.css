@@ -12,16 +12,30 @@ body {
     grid-template-columns: 15% 40% 15% 15%;
     grid-template-rows:  22% 50% 22%;
     grid-gap: 1%;
-    grid-template-areas:    "p3 p2 p1 btn"
+    grid-template-areas:    "sr2 p2 sr1 btn"
                             "p3 tbl p1 btn"
-                            "p3 p0 p1 btn";
+                            "sr3 p0 sr0 btn";
 }
 #buttons {
     grid-area: btn;
 }
 .players {
     border: 1px solid red;
-
+}
+.score {
+    margin: 0 auto;
+}
+#sr-0 {
+    grid-area: sr0;
+}
+#sr-1 {
+    grid-area: sr1;
+}
+#sr-2 {
+    grid-area: sr2;
+}
+#sr-3 {
+    grid-area: sr3;
 }
 #pl-0, #pl-1, #pl-2, #pl-3 {
     display: flex;
@@ -30,12 +44,28 @@ body {
 }
 #pl-0 {
     grid-area: p0;
-    top: 80wh;
-    left: 300px;
+    grid-column: 2/3;
+    grid-row: 3/4;
+    /* top: 80wh;
+    left: 300px; */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center
 }
 #pl-1 {
     grid-area: p1;
     margin-left: 100px;
+    grid-column: 3/4;
+    grid-row: 2/3;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center
+
+
 }
 #pl-1 img, #pl-3 img {
     transform: rotate(-90deg);
@@ -43,10 +73,25 @@ body {
 }
 #pl-2 {
     grid-area: p2; 
+    grid-column: 2/3;
+    grid-row: 1/2;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center
+
 }
 #pl-3 {
-    margin-left: 100px;
+    grid-row: 2/3;
+    grid-column: 1/2;
+    margin: 0 auto;
     grid-area: p3;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center
+    /* flex-direction: column; */
 }
 #mid-table {
     grid-area: tbl;

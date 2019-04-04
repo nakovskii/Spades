@@ -44,28 +44,24 @@ let players = {
         hand : [],
         tricksBid: 0,
         tricksWon: 0,
-        partner: this.p2
     },
     p1 : { 
         cards : [],
         hand : [],
         tricksBid: 0,
         tricksWon: 0,
-        partner: this.p3
     },
     p2 : { 
         cards : [],
         hand : [],
         tricksBid: 0,
         tricksWon: 0,
-        partner: this.p0
     },
     p3 : { 
         cards : [],
         hand : [],
         tricksBid: 0,
         tricksWon: 0,
-        partner: this.p1
     }
 }
 // which player goes next
@@ -141,9 +137,11 @@ const compareSort = (a, b) => {  // callback fundtion
   }
 
 // This translates the Card by x or y co-ordinate and # px displacement
-const checkSuitPresence = (hand, suitp) => {
+const checkSuitPresence = (hand) => {
     for (let i = 0; i < hand.length; i++) {
-        if (hand[i].suit == suitp) {
+        console.log(`hand.suit: ${hand[i].suit} - trickSuit:${trickSuit} `);
+        
+        if (hand[i].suit == trickSuit) {
             return true;
         } else {
             return false;
@@ -151,24 +149,68 @@ const checkSuitPresence = (hand, suitp) => {
     }
 }
 
+const checkSuitPresenceInTrick = (arr, suitt) => {
+    // console.log(`suitt:`, suitt);
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i].suit == suitt) {
+            console.log(`comapring card: `, arr[i]);
+            
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+const updateTricksWon = (p) => {
+    if (p === 0){
+        players.p0.tricksWon += 1;
+    } else if (p===1) {
+        players.p1.tricksWon += 1; 
+    } else if (p===2) {
+        players.p2.tricksWon += 1; 
+    } else if (p===3) {
+        players.p3.tricksWon += 1; 
+    } else {}
+}
+
 const evaluateTrick = () =>{
     let newTrick = trick.flat(2);
+    console.log(`card values:`, newTrick[0].value, newTrick[1].value, newTrick[2].value, newTrick[3].value);
+    let newTrickCardValuesArr = [newTrick[0].value, newTrick[1].value, newTrick[2].value, newTrick[3].value];
+    let newTrickCardSuitsArr = [newTrick[0].suit, newTrick[1].suit, newTrick[2].suit, newTrick[3].suit];
+    console.log(`array of values`, newTrickCardValuesArr);
+    
+    let highestCardIndex = null;
     console.log(newTrick);
-    let tirckWinner = null;
+    let tricksWinner = null;
+    let highestCardValue = null;
+    // (num) => {
+    //     console.log(Math.max(...newTrickCardValuesArr));
+        
+    //     return Math.max(...newTrickCardValuesArr);
+    // }
     // if check if any of the suit is spade?
-    for (let i = 0; i < newTrick.length; i++) {
-        if (checkSuitPresence(newTrick[i], 'spades')) {
+    // for (let i = 0; i < newTrick.length; i++) {
+        if ((trickSuit != 'spades') && newTrickCardSuitsArr.includes('spades')) {
             // evaluate for spades only
-            console.log(`p${i}'s trick has spades ${newTrick[i]}`);
+            console.log(`trick includes Spades`);
             // return trickWinner;
-        } else if (checkSuitPresence(newTrick[i], trickSuit)) {
+//  https://stackoverflow.com/questions/14832603/check-if-all-values-of-array-are-equal
+        } else if (newTrickCardSuitsArr.every( (val, i, arr) => val === trickSuit )) {
             // evaluate for trick suit only
-            console.log(`p${i}'s trick has trick-suit ${trickSuit} card: ${newTrick[i]}`);
-            // return trickWinner;
+            console.log(`same suit trick`);
+            highestCardValue = Math.max(...newTrickCardValuesArr);
+            highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
+            console.log(highestCardIndex);
+            tricksWinner = `players.p${highestCardIndex}`;
+            console.log(tricksWinner);
+            updateTricksWon(highestCardIndex);
+            return trickWinner;
+            
         } else {
             console.log(` nothing p${i}'s trick has ${newTrick[i]}`);
         }
-    }
+    // } // end for
 }
 const translateCard = (disp1, disp2) => {
     pCard.style.transform = `translateXY(${disp1}px, ${disp2}px)`;
@@ -177,7 +219,7 @@ const translateCard = (disp1, disp2) => {
 let displaceCardBy = 25;  // used for laying-over cards
 
 const displayPlayer0Cards = () => {
-    let newLeft = 175;
+    let newLeft = 105;
     let p0HandDOM = document.getElementById('pl-0');
     for (let i=0; i<players.p0.hand.length; i++){
         newLeft += 25;
@@ -190,21 +232,22 @@ const displayPlayer0Cards = () => {
             if (whosTurn === 0 && turnTotal <= 4){
                 let selectedCardindex = players.p0.hand.indexOf(players.p0.hand[i]);
                 console.log(selectedCardindex);
+                console.log('p0 suit presence',checkSuitPresence(players.p2.hand));
                 if (fisrtMove) { 
                     trickSuit = players.p0.hand[selectedCardindex].suit; 
-                    console.log(trickSuit); 
+                    console.log(`trickSuit`,trickSuit); 
                     fisrtMove = false;
                     pCard.style.transform = 'translateY(-200px)';
                     trick[0].push(players.p0.hand.splice(selectedCardindex,1));
                     turnTotal++
                     whosTurn = 1;    
-                } else if (checkSuitPresence(players.p0.hand, trickSuit) && players.p0.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(players.p0.hand) && players.p0.hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
-                    // pCard.removeEventListener('click', ()=>{
-                    //     alert(`must select a card of ${trickSuit}`);
-                    // });
-                } else {
+                } else if (!checkSuitPresence(players.p0.hand) && players.p0.hand[selectedCardindex].suit == 'spades') {
+                    
+                } 
+                else {
                     pCard.style.transform = 'translateY(-200px)';
                     trick[0].push(players.p0.hand.splice(selectedCardindex,1));
                     turnTotal++
@@ -218,7 +261,7 @@ const displayPlayer0Cards = () => {
 };
 
 const displayPlayer1Cards = () => {
-    let newTop = 0;
+    let newTop = 123;
     let pHandDOM = document.getElementById('pl-1');
     for (let i=0; i< players.p2.hand.length; i++){
         newTop += displaceCardBy;
@@ -231,15 +274,16 @@ const displayPlayer1Cards = () => {
             if (whosTurn === 1 && turnTotal <= 4){
             let selectedCardindex = players.p1.hand.indexOf(players.p1.hand[i]);
             console.log(selectedCardindex);
+            console.log('p1 suit presence',checkSuitPresence(players.p1.hand));
                 if (fisrtMove) { 
                     trickSuit = players.p1.hand[selectedCardindex].suit; 
-                    console.log(trickSuit); 
+                    console.log(`p1-first move, trickSuit`,trickSuit); 
                     fisrtMove = false;
                     pCard.style.transform = 'translateX(-200px)';
                     trick[1].push(players.p1.hand.splice(selectedCardindex,1));
                     turnTotal++
                     whosTurn = 2;
-                }  else if (checkSuitPresence(players.p1.hand, trickSuit) && players.p1.hand[selectedCardindex].suit != trickSuit){
+                }  else if (checkSuitPresence(players.p1.hand) && players.p1.hand[selectedCardindex].suit != trickSuit){
                         console.log(pCard);
                         alert(`must select a card of ${trickSuit}`);
                     } else {
@@ -257,7 +301,7 @@ const displayPlayer1Cards = () => {
 };
 
 const displayPlayer2Cards = () => {
-    let newLeft = 175;
+    let newLeft = 105;
     let p3HandDOM = document.getElementById('pl-2');
     for (let i=0; i<13; i++){
         newLeft += displaceCardBy;
@@ -270,15 +314,17 @@ const displayPlayer2Cards = () => {
             if (whosTurn === 2 && turnTotal <= 4){
             let selectedCardindex = players.p2.hand.indexOf(players.p2.hand[i]);
             console.log(selectedCardindex);
+            console.log('p2 suit presence',checkSuitPresence(players.p2.hand, trickSuit));
+            
                 if (fisrtMove) { 
                     trickSuit = players.p2.hand.suit; 
-                    console.log(trickSuit);
+                    console.log(`p1-first move, trickSuit`,trickSuit); 
                     fisrtMove = false;
                     pCard.style.transform = 'translateY(200px)';
                     trick[2].push(players.p2.hand.splice(selectedCardindex,1));
                     turnTotal++
                     whosTurn = 3;    
-                } else if (checkSuitPresence(players.p2.hand, trickSuit) && players.p2.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
                     // pCard.removeEventListener('click', ()=>{
@@ -298,7 +344,7 @@ const displayPlayer2Cards = () => {
     }    
 };
 const displayPlayer3Cards = () => {
-    let newTop = 0;
+    let newTop = 123;
     let pHandDOM = document.getElementById('pl-3');
     for (let i=0; i< players.p3.hand.length; i++){
         newTop += displaceCardBy;
@@ -321,7 +367,7 @@ const displayPlayer3Cards = () => {
                     console.log(trick);
                     turnTotal++
                     whosTurn = 0;
-                } else if (checkSuitPresence(players.p3.hand, trickSuit) && players.p3.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit != trickSuit){
                     alert(`must select a card of ${trickSuit}`);
                 } else {
                     pCard.style.transform = 'translateX(200px)';
@@ -332,7 +378,10 @@ const displayPlayer3Cards = () => {
                     whosTurn = 0;
                     if (turnTotal === 4){
                         evaluateTrick();
+                        pCard.style.display = 'none';
                     }
+                    trickArray = []
+                    innerText = ''
                 }
 
             } else {
