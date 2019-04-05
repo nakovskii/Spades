@@ -399,23 +399,16 @@ const playersTurn = (whozturn) => {
 }
 
 const renderTrick = () => {
-    console.log('start renderTrick',trick);
-    trick = trick.flat(2);
-    let p0TrickImg = document.querySelector('#t-p0');
-    let p1TrickImg = document.querySelector('#t-p1');
-    let p2TrickImg = document.querySelector('#t-p2');
-    let p3TrickImg = document.querySelector('#t-p3');
-    console.log(p0TrickImg, p1TrickImg, p2TrickImg, p3TrickImg);
-    console.log(trick);
-    // if (trick[0] != []) {p0TrickImg.src = trick[0].imgSrc;}
-    // if (trick[1] != []) {p1TrickImg.src = trick[1].imgSrc;}
-    // if (trick[2] != []) {p2TrickImg.src = trick[2].imgSrc;}
-    // if (trick[3] != []) {p3TrickImg.src = trick[3].imgSrc;}
-
-    p0TrickImg.src = p0Trick.imgSrc;
-    p1TrickImg.src = p1Trick.imgSrc;
-    p2TrickImg.src = p2Trick.imgSrc;
-    p3TrickImg.src = p3Trick.imgSrc;
+    console.log('start renderTrick');
+    // let p0TrickImg = document.querySelector('#t-p0');
+    // let p1TrickImg = document.querySelector('#t-p1');
+    // let p2TrickImg = document.querySelector('#t-p2');
+    // let p3TrickImg = document.querySelector('#t-p3');
+    // console.log(p0TrickImg, p1TrickImg, p2TrickImg, p3TrickImg);
+    // p0TrickImg.src = p0Trick.imgSrc;
+    // p1TrickImg.src = p1Trick.imgSrc;
+    // p2TrickImg.src = p2Trick.imgSrc;
+    // p3TrickImg.src = p3Trick.imgSrc;
 }
 
 const computerPlays = () => {
@@ -424,10 +417,71 @@ const computerPlays = () => {
     else {playersTurn(whosTurn);}
     if (turnTotal===4){
         renderTrick();
+
     }
     
 }
 
+const updateTricksWon = (p) => {
+    if (p === 0){
+        players.p0.tricksWon += 1;
+        whosTurn = 0;
+    } else if (p===1) {
+        players.p1.tricksWon += 1; 
+        whosTurn = 1;
+    } else if (p===2) {
+        players.p2.tricksWon += 1; 
+        whosTurn = 2;
+    } else if (p===3) {
+        players.p3.tricksWon += 1; 
+        whosTurn = 3;
+    } else {}
+    // setTimeout(clearTrick, 500);
+}
+const clearTrick = () => {
+    document.querySelector('#t-p0').src = '';
+    document.querySelector('#t-p1').src = '';
+    document.querySelector('#t-p2').src = '';
+    document.querySelector('#t-p3').src = '';
+    trickSuit = '';
+    turnTotal = 0;
+    firstMove = true;
+}
+const evaluateTrick = () => {
+    let ValueTrickCardValuesArr = [p0Trick.value, p1Trick.value, p2Trick.value, p3Trick.value];
+    let trickCardSuitsArr = [p0Trick.suit, p1Trick.suit, p2Trick.suit, p3Trick.suit];
+    let indexOfSuitsArr = [];
+    let highestCardIndex = null;
+    let tricksWinner = null;
+    if ((trickSuit != 'spades') && newTrickCardSuitsArr.includes('spades')) {
+        // evaluate for spades only
+        console.log(`trick includes Spades`);
+        indexOfSuitsArr = trickCardSuitsArr.indexOf('spades');
+        let spadesCardArr = [newTrickCardValuesArr[indexOfSuitsArr[0]], newTrickCardValuesArr[indexOfSuitsArr[1]],newTrickCardValuesArr[indexOfSuitsArr[2]],newTrickCardValuesArr[indexOfSuitsArr[3]]];
+        highestCardValue = Math.max(...spadesCardArr);
+        highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
+        updateTricksWon(highestCardIndex);
+        setTimeout(clearTrick, 500);
+    } else if (newTrickCardSuitsArr.every( (val, i, arr) => val === trickSuit )) {
+        // evaluate for trick suit only
+        console.log(`same suit trick`);
+        highestCardValue = Math.max(...newTrickCardValuesArr);
+        highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
+        console.log(highestCardIndex);
+        tricksWinner = `p${highestCardIndex}hand`;
+        console.log(tricksWinner);
+        updateTricksWon(highestCardIndex);
+        setTimeout(clearTrick, 500);
+    } else if (newTrickCardSuitsArr.includes(trickSuit)){
+        console.log(` cards other than trick suit`);
+        indexOfSuitsArr = newTrickCardSuitsArr.indexOf(trickSuit);
+        let spadesCardArr = [newTrickCardValuesArr[indexOfSuitsArr[0]], newTrickCardValuesArr[indexOfSuitsArr[1]],newTrickCardValuesArr[indexOfSuitsArr[2]],newTrickCardValuesArr[indexOfSuitsArr[3]]];
+        highestCardValue = Math.max(...spadesCardArr);
+        highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
+        updateTricksWon(highestCardIndex);
+        setTimeout(clearTrick, 500);
+    }
+}
 const play = () => {
     dealCards();
     sortHand();
