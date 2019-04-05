@@ -173,10 +173,98 @@ const playersTurnNew = (p) => {
     console.log(trick);
     
 }
-const playersTurn = () => {
+const throwDiamonds = (player) => {
+    for (let i = 0; i < array.length; i++) {
+        const element = array[i];
+        
+    }
+}
+const checkTrickForSpades = () => {
+    for (let i = 0; i < trick.length; i++) {
+        if (spades.includes(trick[i].id)){
+            return true;
+        }
+    }
+    return false;
+}
+const doesThePlayerHaveTrickSuit = (player) => {
+    for (let i = 0; i < player.length; i++) {
+        if (player[i].suit === trickSuit){
+            return true;
+        }
+    }
+    return false;
+}
+const getTheHighestCardValueId = (player, whichsuit) => {
+    if (whichsuit === 'diamonds'){
+        let tempArr = [];
+        for (let i = 0; i < player.length; i++) {
+            if (diamonds.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        return Math.max(...tempDiaArr);
+
+    } else if (whichsuit === 'clubs'){
+        let tempArr = [];
+        for (let i = 0; i < player.length; i++) {
+            if (clubs.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        return Math.max(...tempArr);
+
+    } else if (whichsuit === 'hearts'){
+        let tempArr = [];
+        for (let i = 0; i < player.length; i++) {
+            if (hearts.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        return Math.max(...tempArr);
+
+    } else if (whichsuit === 'spades'){
+        let tempArr = [];
+        for (let i = 0; i < player.length; i++) {
+            if (spades.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        return Math.max(...tempArr);
+
+    } else {return 0}
+}
+
+const getPlayerHighCardValueIdIndex = (player, playerHighCardValueId) => {
+    let tempArr = [];
+    for (let i = 0; i < player.length; i++) {
+        tempArr[i]= player[i].id;
+    }
+    return tempArr.indexOf(playerHighCardValueId);
+}
+const playersTurn = (player) => {
     // check player's hand for suit
-    // if
-    // get cards in the trick
+    if (checkTrickForSpades){
+        if (trickSuit === 'spades'){
+            // do something - check - look
+            // check player has trick suit
+        }
+    } else {
+        if (doesThePlayerHaveTrickSuit(player)) {
+            let playerHighCardValueId = getTheHighestCardValueId(player, trickSuit);
+            if (!playerHighCardValueId){
+                console.log('something went wrong in finding highest card');
+            }
+        } else {
+            let tricksHighCardId = getTricksHighCardOftrickSuitId();
+            if (playerHighCardValueId > tricksHighCardId){
+                let playerHighCardValueIdIndex = getPlayerHighCardValueIdIndex(player, playerHighCardValueId);
+                trick.push(player.splice(playerHighCardValueIdIndex, 1));
+                console.log(`player should poped card into`,trick);
+                
+            }
+        }
+    }
 
 
 }

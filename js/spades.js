@@ -39,6 +39,7 @@ class Deck {
 }
 
 let players = {
+    trick : [[],[],[],[]],
     p0 : { 
         cards : [],
         hand : [],
@@ -73,7 +74,7 @@ let fisrtMove = true;
 // what card to throw? 
 let trickSuit = ''; 
 // each player has its own slot in the trick.  This is to keep track of who won the hand
-let trick = [[],[],[],[]];
+var trick = [[],[],[],[]];
 
 let p0hand = [];
 let p1hand = [];
@@ -98,6 +99,16 @@ spades.shuffle();
 spades.shuffle();
 
 
+const clearTrick = () => {
+    document.querySelector('#t-p0').src = '';
+    document.querySelector('#t-p1').src = '';
+    document.querySelector('#t-p2').src = '';
+    document.querySelector('#t-p3').src = '';
+    trick = [[],[],[],[]].slice();
+    trickSuit = '';
+    turnTotal = 0;
+    fisrtMove = true;
+}
 
 
 const dealRound = (n,index) => {
@@ -185,7 +196,7 @@ const updateTricksWon = (p) => {
         players.p3.tricksWon += 1; 
         whosTurn = 3;
     } else {}
-    clearTrick();
+    // setTimeout(clearTrick, 500);
 }
 const updateScoreCards = () => {
     let p0score = document.getElementById('p0-score');
@@ -202,26 +213,20 @@ const updateScoreCards = () => {
 
 }
 
-const clearTrick = () => {
-    document.querySelector('#t-p0').src = '';
-    document.querySelector('#t-p1').src = '';
-    document.querySelector('#t-p2').src = '';
-    document.querySelector('#t-p3').src = '';
-    trick = [[],[],[],[]];
-    trickSuit = '';
-    turnTotal = 0;
-    fisrtMove = true;
-}
 const renderTrick = (p) => {
     let newTrick = trick.flat(2);
     let p0TrickImg = document.querySelector('#t-p0');
     let p1TrickImg = document.querySelector('#t-p1');
     let p2TrickImg = document.querySelector('#t-p2');
     let p3TrickImg = document.querySelector('#t-p3');
-    if (p === 0) {p0TrickImg.src = newTrick[0].imgSrc;}
-    if (p === 1) {p1TrickImg.src = newTrick[1].imgSrc;}
-    if (p === 2) {p2TrickImg.src = newTrick[2].imgSrc;}
-    if (p === 3) {p3TrickImg.src = newTrick[3].imgSrc;}
+    if (p === 0) {p0TrickImg.src = trick[0][0][0].imgSrc;}
+    if (p === 1) {p1TrickImg.src = trick[1][0][0].imgSrc;}
+    if (p === 2) {p2TrickImg.src = trick[2][0][0].imgSrc;}
+    if (p === 3) {p3TrickImg.src = trick[3][0][0].imgSrc;}
+    // if (p === 0) {p0TrickImg.src = newTrick[0].imgSrc;}
+    // if (p === 1) {p1TrickImg.src = newTrick[1].imgSrc;}
+    // if (p === 2) {p2TrickImg.src = newTrick[2].imgSrc;}
+    // if (p === 3) {p3TrickImg.src = newTrick[3].imgSrc;}
 }
 const renderTrickEval = () => {
     turnTotal = 0;
@@ -257,7 +262,7 @@ const evaluateTrick = () =>{
             highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
             updateTricksWon(highestCardIndex);
             spades.deck.push(trick.splice(0,4)); // return card to deck
-            clearTrick();
+            setTimeout(clearTrick, 500);
 //  found solution to every occurence of a card https://stackoverflow.com/questions/14832603/check-if-all-values-of-array-are-equal
         } else if (newTrickCardSuitsArr.every( (val, i, arr) => val === trickSuit )) {
             // evaluate for trick suit only
@@ -269,7 +274,7 @@ const evaluateTrick = () =>{
             console.log(tricksWinner);
             updateTricksWon(highestCardIndex);
             spades.deck.push(trick.splice(0,4)); // return card to deck
-            clearTrick();
+            setTimeout(clearTrick, 500);
         } else if (newTrickCardSuitsArr.includes(trickSuit)){
             console.log(` cards other than trick suit`);
             indexOfSuitsArr = newTrickCardSuitsArr.indexOf(trickSuit);
@@ -278,7 +283,7 @@ const evaluateTrick = () =>{
             highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
             updateTricksWon(highestCardIndex);
             spades.deck.push(trick.splice(0,4)); // return card to deck
-            clearTrick();
+            setTimeout(clearTrick, 500);
         }
     // } // end for
 }
@@ -318,7 +323,7 @@ const displayPlayer0Cards = () => {
             }
             if (whosTurn === 0 && turnTotal <= 4){
                 console.log(selectedCardindex);
-                console.log('p0 suit presence',checkSuitPresence(players.p2.hand));
+                console.log('p0 suit presence',checkSuitPresence(players.p0.hand));
                 if (fisrtMove) { 
                     trickSuit = players.p0.hand[selectedCardindex].suit; 
                     console.log(`trickSuit`,trickSuit); 
@@ -427,7 +432,7 @@ const displayPlayer2Cards = () => {
             } else if (checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
-                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p2.hand) && players.p1.hand[selectedCardindex].suit == 'spades') {
+                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit == 'spades') {
                     p2Routine();  
                 } else {
                 p2Routine();
@@ -475,7 +480,7 @@ const displayPlayer3Cards = () => {
                     p3Routine();
                 } else if (checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit != trickSuit){
                     alert(`must select a card of ${trickSuit}`);
-                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p1.hand) && players.p3.hand[selectedCardindex].suit == 'spades') {
+                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit == 'spades') {
                     p3Routine();  
                 } else {
                     p3Routine();
