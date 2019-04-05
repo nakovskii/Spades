@@ -39,7 +39,6 @@ class Deck {
 }
 
 let players = {
-    trick : [[],[],[],[]],
     p0 : { 
         cards : [],
         hand : [],
@@ -76,27 +75,28 @@ let trickSuit = '';
 // each player has its own slot in the trick.  This is to keep track of who won the hand
 var trick = [[],[],[],[]];
 
+let p0Trick = [];
+let p1Trick = [];
+let p2Trick = [];
+let p3Trick = [];
+
 let p0hand = [];
 let p1hand = [];
 let p2hand = [];
 let p3hand = [];
+let diamonds = [ 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114 ];
+let clubs =  [ 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127 ];
+let hearts = [ 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140 ];
+let spades = [ 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153 ];
 
 // create new deck called spades
-let spades = new Deck();
-// let myDeck = spades.deck.flat();
-// console.log(myDeck);
-
-// const fs = require('fs')   
-// // Write data in 'Output.txt' . 
-// fs.writeFile('./deck.txt', spades.deck, (err) => { 
-      
-//     // In case of a error throw err. 
-//     if (err) throw err; 
-// }) 
+let spadez = new Deck();
+let myDeck = spadez.deck.flat();
+console.log(myDeck);
 
 // shuffle it twice;
-spades.shuffle();
-spades.shuffle();
+spadez.shuffle();
+spadez.shuffle();
 
 
 const clearTrick = () => {
@@ -104,7 +104,10 @@ const clearTrick = () => {
     document.querySelector('#t-p1').src = '';
     document.querySelector('#t-p2').src = '';
     document.querySelector('#t-p3').src = '';
-    trick = [[],[],[],[]].slice();
+    p0Trick = [];
+    p1Trick = [];
+    p2Trick = [];
+    p3Trick = [];
     trickSuit = '';
     turnTotal = 0;
     firstMove = true;
@@ -112,48 +115,26 @@ const clearTrick = () => {
 
 
 const dealRound = (n,index) => {
-    players.p0.cards.push(spades.deck.splice(0, n));
-    players.p1.cards.push(spades.deck.splice(0, n));
-    players.p2.cards.push(spades.deck.splice(0, n));
-    players.p3.cards.push(spades.deck.splice(0, n));
-        for (let i = 0; i < n; i++) {
-            players.p0.hand.push(players.p0.cards[index].pop());
-            players.p1.hand.push(players.p1.cards[index].pop());
-            players.p2.hand.push(players.p2.cards[index].pop());
-            players.p3.hand.push(players.p3.cards[index].pop());
-        }
+    p0hand.push(myDeck.splice(0, n));
+    p1hand.push(myDeck.splice(0, n));
+    p2hand.push(myDeck.splice(0, n));
+    p3hand.push(myDeck.splice(0, n));
 }
-
-// callback funtion for sort()
-const compareSuits = (a, b) => {
-    let comparison = 0;    
-    if (a.suit > b.suit) {
-      comparison = 1;
-    } else if (a.suit < b.suit) {
-      comparison = -1;
-    }
-    return comparison;
-  }
-const compareSort = (a, b) => {  // callback fundtion
-    let comparison = 0;
-    // debugger;
-    if (a.sorted > b.sorted) {
-      comparison = 1;
-    } else if (a.sorted < b.sorted) {
-      comparison = -1;
-    }
-    return comparison;
-  }
-
-  const sortHand = () => {
-    p0hand = players.p0.hand.sort(compareSort);
-    p1hand = players.p1.hand.sort(compareSort);
-    p2hand = players.p2.hand.sort(compareSort);
-    p3hand = players.p3.hand.sort(compareSort);
-    players.p0.hand = p0hand;
-    players.p1.hand = p1hand;
-    players.p2.hand = p2hand;
-    players.p3.hand = p3hand;
+const sortHand = () => {
+    const compareSort = (a, b) => {  // callback fundtion
+        let comparison = 0;
+        if (a.id > b.id) {
+          comparison = 1;
+        } else if (a.id < b.id) {
+          comparison = -1;
+        }
+        return comparison;
+      }
+    // flatten the hand arrays before sort
+    p0hand = p0hand.flat().sort(compareSort);
+    p1hand = p1hand.flat().sort(compareSort);
+    p2hand = p2hand.flat().sort(compareSort);
+    p3hand = p3hand.flat().sort(compareSort);
   }
 
 // This translates the Card by x or y co-ordinate and # px displacement
@@ -214,41 +195,34 @@ const updateScoreCards = () => {
 }
 
 const renderTrick = (p) => {
-    let newTrick = trick.flat(2);
     let p0TrickImg = document.querySelector('#t-p0');
     let p1TrickImg = document.querySelector('#t-p1');
     let p2TrickImg = document.querySelector('#t-p2');
     let p3TrickImg = document.querySelector('#t-p3');
-    if (p === 0) {p0TrickImg.src = trick[0][0][0].imgSrc;}
-    if (p === 1) {p1TrickImg.src = trick[1][0][0].imgSrc;}
-    if (p === 2) {p2TrickImg.src = trick[2][0][0].imgSrc;}
-    if (p === 3) {p3TrickImg.src = trick[3][0][0].imgSrc;}
-    // if (p === 0) {p0TrickImg.src = newTrick[0].imgSrc;}
-    // if (p === 1) {p1TrickImg.src = newTrick[1].imgSrc;}
-    // if (p === 2) {p2TrickImg.src = newTrick[2].imgSrc;}
-    // if (p === 3) {p3TrickImg.src = newTrick[3].imgSrc;}
+    if (p === 0) {p0TrickImg.src = p0Trick[0].imgSrc;}
+    if (p === 1) {p1TrickImg.src = p1Trick[0].imgSrc;}
+    if (p === 2) {p2TrickImg.src = p2Trick[0].imgSrc;}
+    if (p === 3) {p3TrickImg.src = p3Trick[0].imgSrc;}
 }
 const renderTrickEval = () => {
     turnTotal = 0;
-    let newTrick = trick.flat(2);
     let p0TrickImg = document.querySelector('#t-p0');
     let p1TrickImg = document.querySelector('#t-p1');
     let p2TrickImg = document.querySelector('#t-p2');
     let p3TrickImg = document.querySelector('#t-p3');
-    p0TrickImg.src = newTrick[0].imgSrc;
-    p1TrickImg.src = newTrick[1].imgSrc;
-    p2TrickImg.src = newTrick[2].imgSrc;
-    p3TrickImg.src = newTrick[3].imgSrc;
+    p0TrickImg.src = p0Trick.imgSrc;
+    p1TrickImg.src = p1Trick.imgSrc;
+    p2TrickImg.src = p2Trick.imgSrc;
+    p3TrickImg.src = p3Trick.imgSrc;
 }
 const evaluateTrick = () =>{
     // renderTrickEval();
-    let newTrick = trick.flat(2);
-    console.log(`card values:`, newTrick[0].value, newTrick[1].value, newTrick[2].value, newTrick[3].value);
-    let newTrickCardValuesArr = [newTrick[0].value, newTrick[1].value, newTrick[2].value, newTrick[3].value];
-    let newTrickCardSuitsArr = [newTrick[0].suit, newTrick[1].suit, newTrick[2].suit, newTrick[3].suit];
+    
+    console.log(`card values:`, p0Trick.value, p1Trick.value, p2Trick.value, p3Trick.value);
+    let newTrickCardValuesArr = [p0Trick.value, p1Trick.value, p2Trick.value, p3Trick.value];
+    let newTrickCardSuitsArr = [p0Trick.suit, p1Trick.suit, p2Trick.suit, p3Trick.suit];
     console.log(`array of values`, newTrickCardValuesArr);
     console.log(`array of values`, newTrickCardSuitsArr);
-    console.log(newTrick);
     let indexOfSuitsArr = [];
     let highestCardIndex = null;
     let tricksWinner = null;
@@ -282,7 +256,6 @@ const evaluateTrick = () =>{
             highestCardValue = Math.max(...spadesCardArr);
             highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
             updateTricksWon(highestCardIndex);
-            spades.deck.push(trick.splice(0,4)); // return card to deck
             setTimeout(clearTrick, 500);
         }
     // } // end for
@@ -299,18 +272,18 @@ let displaceCardBy = 25;  // used for laying-over cards
 const displayPlayer0Cards = () => {
     let newLeft = 105;
     let p0HandDOM = document.getElementById('pl-0');
-    for (let i=0; i<players.p0.hand.length; i++){
+    for (let i=0; i<p0hand.length; i++){
         newLeft += 25;
         let pCard = document.createElement('img');
         pCard.classList.add('card-img');
         pCard.style.left = `${newLeft}px`;
-        pCard.src = `${players.p0.hand[i].imgSrc}`;
+        pCard.src = `${p0hand[i].imgSrc}`;
         p0HandDOM.appendChild(pCard);
         pCard.addEventListener('click', () => {
-            let selectedCardindex = players.p0.hand.indexOf(players.p0.hand[i]);
+            let selectedCardindex = p0hand.indexOf(p0hand[i]);
             const p0Routine =()=> {
                 pCard.style.transform = 'translateY(-200px)';
-                    trick[0].push(players.p0.hand.splice(selectedCardindex,1));
+                    p0Trick.push(p0hand.splice(selectedCardindex,1));
                     turnTotal++
                     whosTurn = 1;    
                     setTimeout(() => {
@@ -323,17 +296,17 @@ const displayPlayer0Cards = () => {
             }
             if (whosTurn === 0 && turnTotal <= 4){
                 console.log(selectedCardindex);
-                console.log('p0 suit presence',checkSuitPresence(players.p0.hand));
+                console.log('p0 suit presence',checkSuitPresence(p0hand));
                 if (firstMove) { 
-                    trickSuit = players.p0.hand[selectedCardindex].suit; 
+                    trickSuit = p0hand[selectedCardindex].suit; 
                     console.log(`trickSuit`,trickSuit); 
                     firstMove = false;
                     p0Routine();
                     
-                } else if (checkSuitPresence(players.p0.hand) && players.p0.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(p0hand) && p0hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
-                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p0.hand) && players.p0.hand[selectedCardindex].suit == 'spades') {
+                } else if (trickSuit!= 'spades' && !checkSuitPresence(p0hand) && p0hand[selectedCardindex].suit == 'spades') {
                     p0Routine();  
                 } 
                 else {
@@ -349,21 +322,21 @@ const displayPlayer0Cards = () => {
 const displayPlayer1Cards = () => {
     let newTop = 123;
     let pHandDOM = document.getElementById('pl-1');
-    for (let i=0; i< players.p2.hand.length; i++){
+    for (let i=0; i< p1hand.length; i++){
         newTop += displaceCardBy;
         let pCard = document.createElement('img');
         pCard.classList.add('card-img');
         pCard.style.bottom = `${newTop}px`;
-        pCard.src = `${players.p1.hand[i].imgSrc}`;
+        pCard.src = `${p1hand[i].imgSrc}`;
         pHandDOM.appendChild(pCard);
     
         pCard.addEventListener('click', (e) => {  // eventListener
             if (whosTurn === 1 && turnTotal <= 4){
-            let selectedCardindex = players.p1.hand.indexOf(players.p1.hand[i]);
+            let selectedCardindex = p1hand.indexOf(p1hand[i]);
             console.log(selectedCardindex);
             const p1Routine = () => {
                 pCard.style.transform = 'translateX(-200px)';
-                trick[1].push(players.p1.hand.splice(selectedCardindex,1));
+                p1Trick.push(p1hand.splice(selectedCardindex,1));
                 turnTotal++
                 whosTurn = 2; 
                 setTimeout(() => {
@@ -375,16 +348,16 @@ const displayPlayer1Cards = () => {
                 }, 2200);
             }
     
-            console.log('p1 suit presence',checkSuitPresence(players.p1.hand));
+            console.log('p1 suit presence',checkSuitPresence(p1hand));
                 if (firstMove) { 
-                    trickSuit = players.p1.hand[selectedCardindex].suit; 
+                    trickSuit = p1hand[selectedCardindex].suit; 
                     console.log(`p1-first move, trickSuit`,trickSuit); 
                     firstMove = false;
                     p1Routine();                    
-                }  else if (checkSuitPresence(players.p1.hand) && players.p1.hand[selectedCardindex].suit != trickSuit){
+                }  else if (checkSuitPresence(p1hand) && p1hand[selectedCardindex].suit != trickSuit){
                         console.log(pCard);
                         alert(`must select a card of ${trickSuit}`);
-                    } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p1.hand) && players.p1.hand[selectedCardindex].suit == 'spades') {
+                    } else if (trickSuit!= 'spades' && !checkSuitPresence(p1hand) && p1hand[selectedCardindex].suit == 'spades') {
                         p1Routine();  
                     } else {
                         p1Routine();
@@ -405,14 +378,14 @@ const displayPlayer2Cards = () => {
         let pCard = document.createElement('img');
         pCard.classList.add('card-img');
         pCard.style.left = `${newLeft}px`;
-        pCard.src = `${players.p2.hand[i].imgSrc}`;
+        pCard.src = `${p2hand[i].imgSrc}`;
         p3HandDOM.appendChild(pCard);
         pCard.addEventListener('click', (e) => { // eventListener
             if (whosTurn === 2 && turnTotal <= 4){
-            let selectedCardindex = players.p2.hand.indexOf(players.p2.hand[i]); 
+            let selectedCardindex = p1hand.indexOf(p1hand[i]); 
             const p2Routine = () => {
                 pCard.style.transform = 'translateY(200px)';
-                trick[2].push(players.p2.hand.splice(selectedCardindex,1));
+                p2Trick.push(p2hand.splice(selectedCardindex,1));
                 turnTotal++
                 whosTurn = 3;
                 setTimeout(() => {
@@ -424,15 +397,15 @@ const displayPlayer2Cards = () => {
                 }, 2200);
             }           
                 if (firstMove) { 
-                    trickSuit = players.p2.hand.suit; 
+                    trickSuit = p2hand.suit; 
                     console.log(`p1-first move, trickSuit`,trickSuit); 
                     firstMove = false;
                     p2Routine();
                         
-            } else if (checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit != trickSuit){
+            } else if (checkSuitPresence(p1hand) && p1hand[selectedCardindex].suit != trickSuit){
                     console.log(pCard);
                     alert(`must select a card of ${trickSuit}`);
-                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit == 'spades') {
+                } else if (trickSuit!= 'spades' && !checkSuitPresence(p1hand) && p1hand[selectedCardindex].suit == 'spades') {
                     p2Routine();  
                 } else {
                 p2Routine();
@@ -445,24 +418,22 @@ const displayPlayer2Cards = () => {
     }    
 };
 const displayPlayer3Cards = () => {
-    
     let newTop = 123;
     let pHandDOM = document.getElementById('pl-3');
-    for (let i=0; i< players.p3.hand.length; i++){
+    for (let i=0; i< p3hand.length; i++){
         newTop += displaceCardBy;
         let pCard = document.createElement('img');
         pCard.classList.add('card-img');
         pCard.style.top= `${newTop}px`;
-        pCard.src = `${players.p3.hand[i].imgSrc}`;
+        pCard.src = `${p3hand[i].imgSrc}`;
         pHandDOM.appendChild(pCard);
         pCard.addEventListener('click', (e) => {
             if (whosTurn === 3 & turnTotal <=4){
-            let selectedCardindex = players.p3.hand.indexOf(players.p3.hand[i]);
+            let selectedCardindex = p3hand.indexOf(p3hand[i]);
             console.log(selectedCardindex);
             const p3Routine = () => {
                 pCard.style.transform = 'translateX(200px)';
-                    trick[3].push(players.p3.hand.splice(selectedCardindex,1));
-                    console.log(trick);
+                    p3Trick.push(p1hand.splice(selectedCardindex,1));
                     turnTotal++
                     whosTurn = 0;
                     setTimeout(() => {
@@ -474,13 +445,13 @@ const displayPlayer3Cards = () => {
                     }, 2500);
             }
                 if (firstMove) { 
-                    trickSuit = players.p3.hand[selectedCardindex].suit; 
+                    trickSuit = p3hand[selectedCardindex].suit; 
                     console.log(trickSuit);
                     firstMove = false;
                     p3Routine();
-                } else if (checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit != trickSuit){
+                } else if (checkSuitPresence(p3hand) && p3hand[selectedCardindex].suit != trickSuit){
                     alert(`must select a card of ${trickSuit}`);
-                } else if (trickSuit!= 'spades' && !checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit == 'spades') {
+                } else if (trickSuit!= 'spades' && !checkSuitPresence(p1hand) && p1hand[selectedCardindex].suit == 'spades') {
                     p3Routine();  
                 } else {
                     p3Routine();
