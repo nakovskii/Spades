@@ -70,7 +70,7 @@ let whosTurn = 0;
 // turn Total must not be greater than 4
 let turnTotal = 0
 // if firstMove = true player is allowed to pick any card
-let fisrtMove = true;
+let firstMove = true;
 // what card to throw? 
 let trickSuit = ''; 
 // each player has its own slot in the trick.  This is to keep track of who won the hand
@@ -107,7 +107,7 @@ const clearTrick = () => {
     trick = [[],[],[],[]].slice();
     trickSuit = '';
     turnTotal = 0;
-    fisrtMove = true;
+    firstMove = true;
 }
 
 
@@ -324,10 +324,10 @@ const displayPlayer0Cards = () => {
             if (whosTurn === 0 && turnTotal <= 4){
                 console.log(selectedCardindex);
                 console.log('p0 suit presence',checkSuitPresence(players.p0.hand));
-                if (fisrtMove) { 
+                if (firstMove) { 
                     trickSuit = players.p0.hand[selectedCardindex].suit; 
                     console.log(`trickSuit`,trickSuit); 
-                    fisrtMove = false;
+                    firstMove = false;
                     p0Routine();
                     
                 } else if (checkSuitPresence(players.p0.hand) && players.p0.hand[selectedCardindex].suit != trickSuit){
@@ -376,10 +376,10 @@ const displayPlayer1Cards = () => {
             }
     
             console.log('p1 suit presence',checkSuitPresence(players.p1.hand));
-                if (fisrtMove) { 
+                if (firstMove) { 
                     trickSuit = players.p1.hand[selectedCardindex].suit; 
                     console.log(`p1-first move, trickSuit`,trickSuit); 
-                    fisrtMove = false;
+                    firstMove = false;
                     p1Routine();                    
                 }  else if (checkSuitPresence(players.p1.hand) && players.p1.hand[selectedCardindex].suit != trickSuit){
                         console.log(pCard);
@@ -423,10 +423,10 @@ const displayPlayer2Cards = () => {
                     }
                 }, 2200);
             }           
-                if (fisrtMove) { 
+                if (firstMove) { 
                     trickSuit = players.p2.hand.suit; 
                     console.log(`p1-first move, trickSuit`,trickSuit); 
-                    fisrtMove = false;
+                    firstMove = false;
                     p2Routine();
                         
             } else if (checkSuitPresence(players.p2.hand) && players.p2.hand[selectedCardindex].suit != trickSuit){
@@ -473,10 +473,10 @@ const displayPlayer3Cards = () => {
                         } 
                     }, 2500);
             }
-                if (fisrtMove) { 
+                if (firstMove) { 
                     trickSuit = players.p3.hand[selectedCardindex].suit; 
                     console.log(trickSuit);
-                    fisrtMove = false;
+                    firstMove = false;
                     p3Routine();
                 } else if (checkSuitPresence(players.p3.hand) && players.p3.hand[selectedCardindex].suit != trickSuit){
                     alert(`must select a card of ${trickSuit}`);
