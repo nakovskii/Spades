@@ -84,15 +84,25 @@ let p0hand = [];
 let p1hand = [];
 let p2hand = [];
 let p3hand = [];
-let diamonds = [];
-let clubs = [];
-let hearts = [];
-let spades = [];
-const defineSuitArray = (s, arr) => {
-    for (let i = 0; i < 13; i++) {
-        arr[i] = s+i;
-    }
-}
+let diamonds = [ 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114 ];
+let clubs =  [ 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127 ];
+let hearts = [ 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140 ];
+let spades = [ 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153 ];
+// const defineSuitArray = (s, arr) => {
+//     for (let i = 0; i < 13; i++) {
+//         arr[i] = s+i;
+//     }
+// }
+// defineSuitArray(102, diamonds);
+// defineSuitArray(115, clubs);
+// defineSuitArray(128, hearts);
+// defineSuitArray(141, spades);
+
+// console.log('diamonds', diamonds);
+// console.log('clubs',clubs);
+// console.log('hearts', hearts);
+// console.log('spades', spades);
+
 // create new deck called spades
 let nDeck = new Deck();
 
@@ -141,7 +151,6 @@ const updateGlobalVariables = () => {
     }
     if (whosTurn>3){whosTurn=0}
     console.log(`g-Variables update 1stmove:${firstMove} turnT: ${turnTotal} whosTrun: ${whosTurn}`);
-    
     computerPlays();
 }
 const playersTurnNew = (p) => {
@@ -159,7 +168,6 @@ const playersTurnNew = (p) => {
     }
     else if (p===1){
         console.log(`player 1`, p1hand);
-
         cardplayed.push(p1hand.splice(Math.floor(Math.random()* p1hand.length),1));
         cardplayed = cardplayed.flat(2);
         trickSuit = cardplayed[0].suit;
@@ -208,35 +216,47 @@ const doesThePlayerHaveTrickSuit = (player) => {
 }
 
 const getTheHighestCardValueId = (player, whichsuit) => {
+    console.log(`getting highest card val, whichsuit:`, whichsuit);
+    // not going below this 
     let tempArr = [];
+    let maxID = null;
+    player = player.flat();
     if (whichsuit == 'diamonds'){
         for (let i = 0; i < player.length; i++) {
             if (diamonds.includes(player[i].id)){
                 tempArr.push(player[i].id);
             }
         }
-        return Math.max(...tempArr);
+        maxID = Math.max(...tempArr);
+        console.log(`tempArr`,tempArr, maxID);
+        return maxID;
     } else if (whichsuit == 'clubs'){
         for (let i = 0; i < player.length; i++) {
             if (clubs.includes(player[i].id)){
                 tempArr.push(player[i].id);
             }
         }
-        return Math.max(...tempArr);
+        maxID = Math.max(...tempArr);
+        console.log(`tempArr`,tempArr, maxID);
+        return maxID;
     } else if (whichsuit == 'hearts'){
         for (let i = 0; i < player.length; i++) {
             if (hearts.includes(player[i].id)){
                 tempArr.push(player[i].id);
             }
         }
-        return Math.max(...tempArr);
+        maxID = Math.max(...tempArr);
+        console.log(`tempArr`,tempArr, maxID);
+        return maxID;
     } else if (whichsuit == 'spades'){
         for (let i = 0; i < player.length; i++) {
             if (spades.includes(player[i].id)){
                 tempArr.push(player[i].id);
             }
         }
-        return Math.max(...tempArr);
+        maxID = Math.max(...tempArr);
+        console.log(`tempArr`,tempArr, maxID);
+        return maxID;
     } else {return 0}
 }
 
@@ -249,25 +269,80 @@ const getPlayerHighCardValueIdIndex = (player, playerHighCardValueId) => {
     return tempArr.indexOf(playerHighCardValueId);
 }
 
-const getTheLowestCardValueId = (player, trickSuit)=> {
-
+const getTheLowestCardValueId = (player, whichsuit)=> {
+    console.log(`find lowest card. whichsuit: `, whichsuit);
+    let tempArr = [];
+    if (whichsuit == 'diamonds'){
+        for (let i = 0; i < player.length; i++) {
+            if (diamonds.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        console.log(`min tempArr`,tempArr);
+        return Math.min(...tempArr);
+    } else if (whichsuit == 'clubs'){
+        for (let i = 0; i < player.length; i++) {
+            if (clubs.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        console.log(`min tempArr`,tempArr);
+        return Math.min(...tempArr);
+    } else if (whichsuit == 'hearts'){
+        for (let i = 0; i < player.length; i++) {
+            if (hearts.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        console.log(`min tempArr`,tempArr);
+        return Math.min(...tempArr);
+    } else if (whichsuit == 'spades'){
+        for (let i = 0; i < player.length; i++) {
+            if (spades.includes(player[i].id)){
+                tempArr.push(player[i].id);
+            }
+        }
+        console.log(`min tempArr`,tempArr);
+        return Math.min(...tempArr);
+    } else {return 0}
 } 
-const throwCardIntoTrick = (whozTurn, player, index) =>{
-    if (whozturn===0){
+
+const getTricksHighCardOftrickSuitId = () => {
+    console.log(`getting tricks hig card id`);
+    
+    let tempArr = [];
+    if (p0Trick != [] && p0Trick.suit == trickSuit){
+        tempArr.push(p0Trick.id);
+    } else if (p1Trick != [] && p0Trick.suit == trickSuit){
+        tempArr.push(p1Trick.id);
+    } else if (p2Trick != [] && p0Trick.suit == trickSuit){
+        tempArr.push(p2Trick.id);
+    } else if (p3Trick != [] && p0Trick.suit == trickSuit){
+        tempArr.push(p3Trick.id);
+    } else {}
+    return Math.max(...tempArr);
+}
+
+const throwCardIntoTrick = (whozturn, player, index) =>{
+    if (whozturn === 0){
         p0Trick.push(player.splice(index, 1));
+        p1Trick = p0Trick.flat();
         console.log(`p0 threw a card in trick from index: ${index} p0trick:`,p0Trick);
         updateGlobalVariables();
     } else if (whozturn===1) {
         p1Trick.push(player.splice(index, 1));
-        console.log(`p1 threw a card in trick from index: ${index} p0trick:`,p1Trick);
+        p1Trick = p1Trick.flat();
+        console.log(`p1 threw a card in trick from index: ${index} p1trick:`,p1Trick);
         updateGlobalVariables();
     } else if (whozturn===2) {
         p2Trick.push(player.splice(index, 1));
-        console.log(`p1 threw a card in trick from index: ${index} p0trick:`,p2Trick);
+        p2Trick = p2Trick.flat();
+        console.log(`p2 threw a card in trick from index: ${index} p2trick:`,p2Trick);
         updateGlobalVariables();
     } else if (whozturn===3) {
         p3Trick.push(player.splice(index, 1));
-        console.log(`p3 threw a card in trick from index: ${index} p0trick:`,p3Trick);
+        p3Trick = p3Trick.flat();
+        console.log(`p3 threw a card in trick from index: ${index} p3trick:`,p3Trick);
         updateGlobalVariables();
     }else {console.log(`error player not known`);
     } 
@@ -306,15 +381,19 @@ const playersTurn = (whozturn) => {
             let playerHighCardValueId = getTheHighestCardValueId(player, trickSuit);
             if (!playerHighCardValueId){
                 console.log('something went wrong in finding highest card');
-            }
-        } else {
-            let tricksHighCardId = getTricksHighCardOftrickSuitId();
-            if (playerHighCardValueId > tricksHighCardId){
-                let playerHighCardValueIdIndex = getPlayerHighCardValueIdIndex(player, playerHighCardValueId);
-                // p${}.push(player.splice(playerHighCardValueIdIndex, 1));
-                throwCardIntoTrick(whosTurn,player,playerHighCardValueIdIndex);
-                console.log(`player should've poped card into`, whosTurn);
-            }
+            } else {
+                let tricksHighCardId = getTricksHighCardOftrickSuitId();
+                if (playerHighCardValueId > tricksHighCardId){
+                    let playerHighCardValueIdIndex = getPlayerHighCardValueIdIndex(player, playerHighCardValueId);
+                    // p${}.push(player.splice(playerHighCardValueIdIndex, 1));
+                    throwCardIntoTrick(whosTurn,player,playerHighCardValueIdIndex);
+                    console.log(`player should've poped high card into trick`, whosTurn);
+                } else {
+                    playerLowCardValueId = getTheLowestCardValueId(player, trickSuit);
+                    throwCardIntoTrick(whosTurn, player, playerLowCardValueId);
+                    console.log(`player should've poped low card into into trick`, whosTurn);
+                }
+        } 
         }
     }
 }
@@ -340,22 +419,16 @@ const renderTrick = () => {
 }
 
 const computerPlays = () => {
+    console.log(`whosTurn: ${whosTurn}, turnTotal: ${turnTotal}`);
     if (firstMove){playersTurnNew(whosTurn);}
     else {playersTurn(whosTurn);}
     if (turnTotal===4){
         renderTrick();
     }
+    
 }
 
 const play = () => {
-    defineSuitArray(102, diamonds);
-    defineSuitArray(115, clubs);
-    defineSuitArray(128, hearts);
-    defineSuitArray(141, spades);
-    // console.log('diamonds',diamonds);
-    // console.log('clubs',clubs);
-    // console.log('hearts',hearts);
-    // console.log('spades',spades);
     dealCards();
     sortHand();
     computerPlays();

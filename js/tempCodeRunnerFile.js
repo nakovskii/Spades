@@ -1,1 +1,1 @@
-    // p0hand = p0hand.sort(compareSort);
+getting tricks hig card id
