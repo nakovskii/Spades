@@ -40,41 +40,37 @@ class Deck {
 
 let players = {
     p0 : { 
-        cards : [],
-        hand : [],
         tricksBid: 0,
         tricksWon: 0,
     },
     p1 : { 
-        cards : [],
-        hand : [],
         tricksBid: 0,
         tricksWon: 0,
     },
     p2 : { 
-        cards : [],
-        hand : [],
         tricksBid: 0,
         tricksWon: 0,
     },
     p3 : { 
-        cards : [],
-        hand : [],
         tricksBid: 0,
         tricksWon: 0,
     }
 }
+
+let myDeck = [];
 // which player goes next
 let whosTurn = 0;
 // turn Total must not be greater than 4
 let turnTotal = 0
+// turnNumber
+let tricksTotal = 1;
 // if firstMove = true player is allowed to pick any card
 let firstMove = true;
 // what card to throw? 
 let trickSuit = ''; 
 let trickSuitId = null;
+let tricksHighCardHolder = null;
 // each player has its own variable for the trick.  This is to keep track of who won the hand
-let trick = [ , , , ,];
 let p0Trick = [];
 let p1Trick = [];
 let p2Trick = [];
@@ -110,7 +106,8 @@ let nDeck = new Deck();
 nDeck.shuffle();
 nDeck.shuffle();
 // get flatted deck array
-let myDeck = nDeck.deck.flat();
+// myDeck = flattenf(nDeck.deck.slice());
+// console.log(myDeck);
 // console.log(myDeck);
 const dealRound = (n,index) => {
     p0hand.push(myDeck.splice(0, n));
@@ -118,6 +115,11 @@ const dealRound = (n,index) => {
     p2hand.push(myDeck.splice(0, n));
     p3hand.push(myDeck.splice(0, n));
 }
+// array.flat() is not working after React Install so created own flatten function
+flatten = (arr) => {
+    return Array.prototype.concat(...arr);
+}
+
 const sortHand = () => {
     const compareSort = (a, b) => {  // callback fundtion
         let comparison = 0;
@@ -129,10 +131,10 @@ const sortHand = () => {
         return comparison;
       }
     // flatten the hand arrays before sort
-    p0hand = p0hand.flat().sort(compareSort);
-    p1hand = p1hand.flat().sort(compareSort);
-    p2hand = p2hand.flat().sort(compareSort);
-    p3hand = p2hand.flat().sort(compareSort);
+    p0hand = flatten(p0hand).sort(compareSort);
+    p1hand = flatten(p1hand).sort(compareSort);
+    p2hand = flatten(p2hand).sort(compareSort);
+    p3hand = flatten(p3hand).sort(compareSort);
   }
   const dealCards = () => {
     dealRound(5,0);
@@ -141,30 +143,34 @@ const sortHand = () => {
     sortHand();   
 };
 
-const updateGlobalVariables = () => {
+const updateTurnVariables = () => {
     firstMove = false;
     turnTotal++;
+    `Player ${whosTurn} just finished. updating`
     whosTurn++;
-    if (turnTotal===4){
+    if (turnTotal==4){
         renderTrick();
+        evaluateTrick();
         turnTotal = 0;
+        tricksTotal++;
+    } else {
+        computerPlays();
     }
-    if (whosTurn>3){whosTurn=0}
+    if (whosTurn==4){whosTurn=0;}
     console.log(`g-Variables update 1stmove:${firstMove} turnT: ${turnTotal} whosTrun: ${whosTurn}`);
-    computerPlays();
 }
 const playersTurnNew = (p) => {
     let cardplayed = [];
     if (p===0){
         console.log(`player 0`, p0hand);
-        
         cardplayed.push(p0hand.splice(Math.floor(Math.random()* p0hand.length),1));
-        cardplayed = cardplayed.flat(2);
+        cardplayed = flatten(cardplayed);
         trickSuit = cardplayed[0].suit;
         trickSuitId = cardplayed[0].id;
         p0Trick.push(cardplayed.pop());
         console.log(`p0Trick after cardplayed`,p0Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
+        tricksHighCardHolder = 0;
     }
     else if (p===1){
         console.log(`player 1`, p1hand);
@@ -174,7 +180,8 @@ const playersTurnNew = (p) => {
         trickSuitId = cardplayed[0].id;
         p1Trick.push(cardplayed.pop());
         console.log(`p1Trick after cardplayed`, p1Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
+        tricksHighCardHolder = 1;
     }
     else if (p===2){
         console.log(`player 2`, p2hand);
@@ -185,42 +192,59 @@ const playersTurnNew = (p) => {
         trickSuitId = cardplayed[0].id;
         p2Trick.push(cardplayed.pop());
         console.log(`p2Trick after cardplayed`, p2Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
+        tricksHighCardHolder = 2;
     }
     else if (p===3){
         console.log(`player 3`, p3hand);
-
         cardplayed.push(p2hand.splice(Math.floor(Math.random()* p2hand.length),1));
         cardplayed = cardplayed.flat(2);
         trickSuit = cardplayed[0].suit;
         trickSuitId = cardplayed[0].id;
         p3Trick.push(cardplayed.pop());
         console.log(`p3Trick after cardplayed`,p3Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
+        tricksHighCardHolder = 3;
     }    
-}
+} // playersTurnNew() end 
 
+// check this is flawed
 const checkTrickForSpades = () => {
-    console.log(`checking trick for spades`);
-    return spades.includes(p0Trick.id) || spades.includes(p1Trick.id) || spades.includes(p2Trick.id) || spades.includes(p3Trick.id);
-}
-const doesThePlayerHaveTrickSuit = (player) => {
-    console.log(`check doesThePlayerHaveTrickSuit ${whosTurn} hand`, player);
+    console.log(`checking trick for spades`, p0Trick, p1Trick, p2Trick, p3Trick);
+    let p0hasSpades = false;
+    let p1hasSpades = false;
+    let p2hasSpades = false;
+    let p3hasSpades = false;
+    if(p0Trick) {
+        p0hasSpades = spades.includes(p0Trick[0].id);
+    } else if (p1Trick)  {
+        p1hasSpades = spades.includes(p1Trick[0].id);
+    } else if(p2Trick) {
+        p2hasSpades = spades.includes(p2Trick[0].id);
+    } else if (p3Trick) {
+        p3hasSpades = spades.includes(p3Trick[0].id);
+    } 
+    debugger;
+    return (p0hasSpades || p1hasSpades || p2hasSpades || p3hasSpades);
+} // end checkTrickForSpades
+
+const doesThePlayerHaveSuit = (player, suit) => {
+    console.log(`check doesThePlayerHaveSuit ${whosTurn} hand`, player, suit);
     for (let i = 0; i < player.length; i++) {
-        if (player[i].suit === trickSuit){
+        if (player[i].suit === suit){
             console.log(`player ${whosTurn} at index ${i} has ${player[i].suit} & trickSuit: ${trickSuit}`);
             return true;
         }
     }
     return false;
-}
+} // doesThePlayerHaveSuit
 
 const getTheHighestCardValueId = (player, whichsuit) => {
     console.log(`getting highest card val, whichsuit:`, whichsuit);
     // not going below this 
     let tempArr = [];
     let maxID = null;
-    player = player.flat();
+    player = flatten(player);
     if (whichsuit == 'diamonds'){
         for (let i = 0; i < player.length; i++) {
             if (diamonds.includes(player[i].id)){
@@ -258,15 +282,6 @@ const getTheHighestCardValueId = (player, whichsuit) => {
         console.log(`tempArr`,tempArr, maxID);
         return maxID;
     } else {return 0}
-}
-
-const getPlayerHighCardValueIdIndex = (player, playerHighCardValueId) => {
-    console.log(`in getPlayerHighCardValueIdIndex`);
-    let tempArr = [];
-    for (let i = 0; i < player.length; i++) {
-        tempArr[i]= player[i].id;
-    }
-    return tempArr.indexOf(playerHighCardValueId);
 }
 
 const getTheLowestCardValueId = (player, whichsuit)=> {
@@ -304,20 +319,28 @@ const getTheLowestCardValueId = (player, whichsuit)=> {
         }
         console.log(`min tempArr`,tempArr);
         return Math.min(...tempArr);
-    } else {return 0}
+    } else {return false}
 } 
 
-const getTricksHighCardOftrickSuitId = () => {
-    console.log(`getting tricks hig card id`);
-    
+const getPlayerCardValueIdIndex = (player, playerCardValueId) => {
+    console.log(`in getPlayerCardValueIdIndex`);
     let tempArr = [];
-    if (p0Trick != [] && p0Trick.suit == trickSuit){
+    for (let i = 0; i < player.length; i++) {
+        tempArr[i]= player[i].id;
+    }
+    return tempArr.indexOf(playerCardValueId);
+}
+
+const getTricksHighCardOfSuitId = (suit) => {
+    console.log(`getting tricks hig card id`);
+    let tempArr = [];
+    if (p0Trick != [] && p0Trick.suit == suit){
         tempArr.push(p0Trick.id);
-    } else if (p1Trick != [] && p0Trick.suit == trickSuit){
+    } else if (p1Trick != [] && p0Trick.suit == suit){
         tempArr.push(p1Trick.id);
-    } else if (p2Trick != [] && p0Trick.suit == trickSuit){
+    } else if (p2Trick != [] && p0Trick.suit == suit){
         tempArr.push(p2Trick.id);
-    } else if (p3Trick != [] && p0Trick.suit == trickSuit){
+    } else if (p3Trick != [] && p0Trick.suit == suit){
         tempArr.push(p3Trick.id);
     } else {}
     return Math.max(...tempArr);
@@ -326,76 +349,146 @@ const getTricksHighCardOftrickSuitId = () => {
 const throwCardIntoTrick = (whozturn, player, index) =>{
     if (whozturn === 0){
         p0Trick.push(player.splice(index, 1));
-        p1Trick = p0Trick.flat();
+        p1Trick = flatten(flatten(p0Trick));
         console.log(`p0 threw a card in trick from index: ${index} p0trick:`,p0Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
     } else if (whozturn===1) {
         p1Trick.push(player.splice(index, 1));
-        p1Trick = p1Trick.flat();
+        p1Trick = flatten(p1Trick);
         console.log(`p1 threw a card in trick from index: ${index} p1trick:`,p1Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
     } else if (whozturn===2) {
         p2Trick.push(player.splice(index, 1));
-        p2Trick = p2Trick.flat();
+        p2Trick = flatten(p2Trick);
         console.log(`p2 threw a card in trick from index: ${index} p2trick:`,p2Trick);
-        updateGlobalVariables();
+        updateTurnVariables();
     } else if (whozturn===3) {
         p3Trick.push(player.splice(index, 1));
-        p3Trick = p3Trick.flat();
+        p3Trick = flatten(p3Trick);
         console.log(`p3 threw a card in trick from index: ${index} p3trick:`,p3Trick);
-        updateGlobalVariables();
-    }else {console.log(`error player not known`);
+        updateTurnVariables();
+    }else {console.log(`error: player not known`);
     } 
+}
+
+const whosTurnIsIt = (whozturn) => {
+    if (whozturn===0){
+        return p0hand;
+    } else if (whozturn===1) {
+        return p1hand;
+    } else if (whozturn===2) {
+        return p2hand;
+    } else if (whozturn===3) {
+        return p3hand;
+    }else {console.log(`error: player not known`); 
+    }
+}
+
+const findPlayersSmallestCardIndex = (player) => {
+    // finds most cards on thr same suit minus spades
+    let diamondsSmallestCardId = getTheLowestCardValueId (player, 'diamonds');
+    let heartsSmallestCardId = getTheLowestCardValueId (playerCardValueId, 'hearts');
+    let clubsSmallestCardId = getTheLowestCardValueId (player, 'clubs');
+    let diamondsSmallestCardIndex = findPlayersSmallestCardIndex(player, diamondsSmallestCardId);
+    let heartsSmallestCardIndex = findPlayersSmallestCardIndex(player, heartsSmallestCardId);
+    let clubssSmallestCardIndex = findPlayersSmallestCardIndex(player, clubsSmallestCardId);
+    let smallestCardIndex = null;
+    if (clubsSmallestCardId) {
+        smallestCardIndex = getPlayerCardValueIdIndex(player, clubsSmallestCardId);
+        if (heartsSmallestCardId && player[findPlayersSmallestCardIndex(player, heartsSmallestCardId)].value < player[smallestCardIndex].value) {
+                smallestCardIndex = findPlayersSmallestCardIndex(player, heartsSmallestCardId);
+        } else if (diamondsSmallestCardId && player[findPlayersSmallestCardIndex(player, diamondsSmallestCardId)].value < player[smallestCardIndex].value) {
+                smallestCardIndex = findPlayersSmallestCardIndex(player, diamondsSmallestCardId);
+        } 
+    } else if (diamondsSmallestCardId){
+        smallestCardIndex = getPlayerCardValueIdIndex(player, diamondsSmallestCardId);
+        if (heartsSmallestCardId && player[findPlayersSmallestCardIndex(player, heartsSmallestCardId)].value < player[smallestCardIndex].value) {
+            smallestCardIndex = findPlayersSmallestCardIndex(player, heartsSmallestCardId)
+        }
+    }
 }
 
 const playersTurn = (whozturn) => {
     // check player's hand for suit
     console.log(`playersTurn`);
-    let player = null;
-    if (whozturn===0){
-        player = p0hand;
-    } else if (whozturn===1) {
-        player = p1hand;
-    } else if (whozturn===2) {
-        player = p2hand;
-    } else if (whozturn===3) {
-        player = p3hand;
-    }else {console.log(`error player not known`);
-    }
+    console.log(`trickSuit: ${trickSuit}`);
+    console.log(`trickSuitId: ${trickSuitId}`);
+    debugger;
+    let player = whosTurnIsIt(whozturn);
     // console.log(`player ${whozturn}'s hand `, player);
     // code is fine upto here
     if (checkTrickForSpades()){
         if (trickSuit !== 'spades'){
             console.log(`spades in the trick & trickSuit not equals spades`);
-            if (doesThePlayerHaveTrickSuit(player)) {
+            if (doesThePlayerHaveSuit(player, trickSuit)) {
                 // if yes, throw smallest card
                 let playerLowCardValueId = getTheLowestCardValueId(player, trickSuit);
-            } else {
-                // if no, throw bigger spades card
-                // if no bigger spades card then throw lowest card from the deck
-            }
-        }
-    } else {
-        if (doesThePlayerHaveTrickSuit(player)) {
+                let playerLowCardValueIdIndex = getPlayerCardValueIdIndex(player, playerLowCardValueId)
+                throwCardIntoTrick(whosTurn, player, playerLowCardValueIdIndex);
+                console.log(`player with highest card in the tricks is p:${tricksHighCardHolder}`);
+            } else { // if the trick has spades and it's not the tricksuit 
+                // if the player doesn't have tricksuit either
+                // check if the player has spades
+                if (doesThePlayerHaveSuit(player, 'spades')) {
+                    let playerHighCardValueId = getTheHighestCardValueId(player, 'spades');
+                    let tricksHighCardId = getTricksHighCardOfSuitId('spades');
+                    if (playerHighCardValueId > tricksHighCardId){
+                        let playerHighCardValueIdIndex = getPlayerCardValueIdIndex(player, playerHighCardValueId);
+                        throwCardIntoTrick(whosTurn, player, playerHighCardValueIdIndex);
+                        tricksHighCardHolder = whosTurn;
+                        console.log(`player with highest spade card in the tricks is p:${tricksHighCardHolder}`);
+                    // if no bigger spades card then throw lowest card from the deck
+                    } else {
+                        console.log(`get lowest non-spade card !!`);
+                        
+                    }
+                } else {
+                    console.log(`player does't have Spades`);
+                    
+                    }
+            }  // end else if player doesn't have suit
+        }    
+    } else { // if the trick doesn't have spade
+        if (doesThePlayerHaveSuit(player, trickSuit)) {
             // checked! player has trickSuit
             let playerHighCardValueId = getTheHighestCardValueId(player, trickSuit);
             if (!playerHighCardValueId){
                 console.log('something went wrong in finding highest card');
             } else {
-                let tricksHighCardId = getTricksHighCardOftrickSuitId();
+                tricksHighCardId = getTricksHighCardOfSuitId(trickSuit);
                 if (playerHighCardValueId > tricksHighCardId){
-                    let playerHighCardValueIdIndex = getPlayerHighCardValueIdIndex(player, playerHighCardValueId);
+                    let playerHighCardValueIdIndex = getPlayerCardValueIdIndex(player, playerHighCardValueId);
                     // p${}.push(player.splice(playerHighCardValueIdIndex, 1));
                     throwCardIntoTrick(whosTurn,player,playerHighCardValueIdIndex);
-                    console.log(`player should've poped high card into trick`, whosTurn);
+                    tricksHighCardHolder = whosTurn;
+                    console.log(`player ${whosTurn} should've poped high card into trick`, whosTurn, p0Trick, p1Trick, p3Trick);
                 } else {
                     playerLowCardValueId = getTheLowestCardValueId(player, trickSuit);
-                    throwCardIntoTrick(whosTurn, player, playerLowCardValueId);
-                    console.log(`player should've poped low card into into trick`, whosTurn);
+                    playerLowCardValueIdIndex = getPlayerCardValueIdIndex (player, playerLowCardValueId);
+                    throwCardIntoTrick(whosTurn, player, playerLowCardValueIdIndex);
+                    console.log(`player ${whosTurn} should've poped high card into trick`, whosTurn, p0Trick, p1Trick, p3Trick);
                 }
-        } 
+            } 
+        } else { // if the player doesn't have suit, check if the player has spades
+            if (doesThePlayerHaveSuit(player, 'spades')) {
+                tricksHighCardId = getTricksHighCardOfSuitId('spades');
+                playerCardValueId = getTheHighestCardValueId(player, 'spades');
+                if (playerCardValueId > tricksHighCardId) {
+                    playerHighCardValueIdIndex = getPlayerCardValueIdIndex(player, 'spades');
+                    throwCardIntoTrick(whosturn, player, playerHighCardValueIdIndex);
+                    tricksHighCardHolder = whosTurn;
+                } else { // player desn't have higher spades card
+                    console.log(`player doesn't have higher spades card`);
+                    playerLowCardValueIdIndex = findPlayersSmallestCardIndex(player);
+                    throwCardIntoTrick(whosTurn, player, playerLowCardValueIdIndex);
+                }
+            } else { // the player doesn't have spades
+                playerLowCardValueIdIndex = findPlayersSmallestCardIndex(player);
+                throwCardIntoTrick(whosTurn, player, playerLowCardValueIdIndex);
+            }
         }
     }
+
 }
 
 const renderTrick = () => {
@@ -415,11 +508,6 @@ const computerPlays = () => {
     console.log(`whosTurn: ${whosTurn}, turnTotal: ${turnTotal}`);
     if (firstMove){playersTurnNew(whosTurn);}
     else {playersTurn(whosTurn);}
-    if (turnTotal===4){
-        renderTrick();
-
-    }
-    
 }
 
 const updateTricksWon = (p) => {
@@ -448,46 +536,58 @@ const clearTrick = () => {
     firstMove = true;
 }
 const evaluateTrick = () => {
-    let ValueTrickCardValuesArr = [p0Trick.value, p1Trick.value, p2Trick.value, p3Trick.value];
-    let trickCardSuitsArr = [p0Trick.suit, p1Trick.suit, p2Trick.suit, p3Trick.suit];
-    let indexOfSuitsArr = [];
-    let highestCardIndex = null;
-    let tricksWinner = null;
-    if ((trickSuit != 'spades') && newTrickCardSuitsArr.includes('spades')) {
-        // evaluate for spades only
-        console.log(`trick includes Spades`);
-        indexOfSuitsArr = trickCardSuitsArr.indexOf('spades');
-        let spadesCardArr = [newTrickCardValuesArr[indexOfSuitsArr[0]], newTrickCardValuesArr[indexOfSuitsArr[1]],newTrickCardValuesArr[indexOfSuitsArr[2]],newTrickCardValuesArr[indexOfSuitsArr[3]]];
-        highestCardValue = Math.max(...spadesCardArr);
-        highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
-        updateTricksWon(highestCardIndex);
-        setTimeout(clearTrick, 500);
-    } else if (newTrickCardSuitsArr.every( (val, i, arr) => val === trickSuit )) {
-        // evaluate for trick suit only
-        console.log(`same suit trick`);
-        highestCardValue = Math.max(...newTrickCardValuesArr);
-        highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
-        console.log(highestCardIndex);
-        tricksWinner = `p${highestCardIndex}hand`;
-        console.log(tricksWinner);
-        updateTricksWon(highestCardIndex);
-        setTimeout(clearTrick, 500);
-    } else if (newTrickCardSuitsArr.includes(trickSuit)){
-        console.log(` cards other than trick suit`);
-        indexOfSuitsArr = newTrickCardSuitsArr.indexOf(trickSuit);
-        let spadesCardArr = [newTrickCardValuesArr[indexOfSuitsArr[0]], newTrickCardValuesArr[indexOfSuitsArr[1]],newTrickCardValuesArr[indexOfSuitsArr[2]],newTrickCardValuesArr[indexOfSuitsArr[3]]];
-        highestCardValue = Math.max(...spadesCardArr);
-        highestCardIndex = newTrickCardValuesArr.indexOf(highestCardValue);
-        updateTricksWon(highestCardIndex);
-        setTimeout(clearTrick, 500);
-    }
+    // let trickCardSuitsArr = [p0Trick[0].suit, p1Trick[0].suit, p2Trick[0].suit, p3Trick[0].suit];
+    // let indexOfSuitsArr = [];
+    // let highestCardIndex = null;
+    // let tricksWinner = null;
+    // if ((trickSuit != 'spades') && trickCardSuitsArr.includes('spades')) {
+    //     // evaluate for spades only
+    //     console.log(`trick includes Spades`);
+    //     indexOfSuitsArr = trickCardSuitsArr.indexOf('spades');
+    //     let spadesCardArr = 
+    //     highestCardValue = Math.max(...spadesCardArr);
+    //     highestCardIndex = trickCardSuitsArr.indexOf(highestCardValue);
+    //     updateTricksWon(highestCardIndex);
+    //     setTimeout(clearTrick, 500);
+    // } else if (trickCardSuitsArr.every( (val, i, arr) => val === trickSuit )) {
+    //     // evaluate for trick suit only
+    //     console.log(`same suit trick`);
+    //     highestCardValue = Math.max(...trickCardValuesArr);
+    //     highestCardIndex = trickCardValuesArr.indexOf(highestCardValue);
+    //     console.log(highestCardIndex);
+    //     tricksWinner = `p${highestCardIndex}hand`;
+    //     console.log(tricksWinner);
+    //     updateTricksWon(highestCardIndex);
+    //     setTimeout(clearTrick, 500);
+    // } else if (trickCardSuitsArr.includes(trickSuit)){
+    //     console.log(` cards other than trick suit`);
+    //     indexOfSuitsArr = newTrickCardSuitsArr.indexOf(trickSuit);
+    //     let spadesCardArr = [trickCardSuitsArr[indexOfSuitsArr[0]], trickCardSuitsArr[indexOfSuitsArr[1]],trickCardSuitsArr[indexOfSuitsArr[2]],trickCardSuitsArr[indexOfSuitsArr[3]]];
+    //     highestCardValue = Math.max(...spadesCardArr);
+    //     highestCardIndex = trickCardSuitsArr.indexOf(highestCardValue);
+    //     updateTricksWon(highestCardIndex);
+    //     setTimeout(clearTrick, 500);
+    // }
+    console.log(`tricks highcard holder should be ${tricksHighCardHolder}`);
+    console.log(p0Trick, p1Trick, p2Trick, p3Trick);
+    
+    
+    // if (tricksTotal < 13){
+    //     computerPlays();
+    // }
 }
 const play = () => {
+    //  shuffle twice
+    nDeck.shuffle();
+    nDeck.shuffle();
+    // get flatted deck array
+    myDeck = flatten(nDeck.deck.slice());
+    // console.log(myDeck);
+
     dealCards();
     sortHand();
     computerPlays();
-    console.log(`trickSuit: ${trickSuit}`);
-    console.log(`trickSuitId: ${trickSuitId}`);
     
 }
+
 play();
