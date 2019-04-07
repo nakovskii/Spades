@@ -14,7 +14,9 @@
 // check to see if spade is on the table? spade card.
 // if not throw the lowest of the spade, if yes, throw bigger 
 // if the suit is not found
-
+// 
+// currently simple logic everyone is trying to thrwo highest card as oppose to card higher than then the opponent
+//  no partnet setup
 
 class Deck {
     constructor() {
