@@ -9,6 +9,9 @@ https://en.wikipedia.org/wiki/Spades
 The game is palyed between four players, but my version will have 2 sets of partners. One (1) set of partners will be played by the computer and the other played by the user and computer or user's choice of taking over that role as well.
 
 
+This game is available at [http://nakovskii.surge.sh/spades](http://nakovskii.surge.sh)
+
+
 
 
 
